@@ -1,4 +1,4 @@
-#define SIZE	1500
+#define BSIZE	100
 #define POSITION 0
 #define IMMEDIATE 1
 #define RELATIVE 2
@@ -22,21 +22,31 @@
 
 #define RUNNINGP if( IM.state != RUNNING ) { return; }
 
+typedef struct MemBlock MemBlock;
+
+struct MemBlock {
+	vlong block;
+	vlong data[BSIZE];
+	MemBlock *next;
+};
+
 struct Intcode_machine {
-	long ip;
-	long base;
-	long inst;
-	long mode;
-	long state;
-	vlong mem[SIZE];
+	vlong ip;
+	vlong base;
+	vlong inst;
+	vlong mode;
+	vlong state;
+	MemBlock *mem;
 } IM;
 
 /* Functions in Icode-init.c */
-int print_mem(long, long);
-long populate(void);
+int print_mem(void);
+vlong populate(void);
 int init(void);
-int valid(long);
+MemBlock *valid(vlong);
 char *print_state(void);
+MemBlock *newblock(vlong);
+MemBlock *addblock(vlong);
 
 /* Functions in Icode-op.c */
 void step(void);
@@ -50,5 +60,5 @@ void icm_jf(void);
 void icm_lt(void);
 void icm_eq(void);
 void icm_adjrb(void);
-vlong readmem(long);
-void writemem(long, vlong);
+vlong readmem(vlong);
+void writemem(vlong, vlong);

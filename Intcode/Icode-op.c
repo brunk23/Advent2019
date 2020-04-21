@@ -4,11 +4,13 @@
 #include "machine.h"
 
 void step(void) {
+	MemBlock *curr;
 	int value;
 
-	if( valid( IM.ip ) ) {
-		value = IM.mem[ IM.ip ];
+	if( curr=valid( IM.ip ) ) {
+		value = curr->data[ IM.ip%BSIZE ];
 	} else {
+		print("\nError setting IM.ip to %ld\n", IM.ip);
 		IM.state = ERRMEM;
 		return;
 	}
@@ -82,6 +84,7 @@ void icm_jt() {
 			IM.ip = value;
 			return;
 		} else {
+			print("\nError setting IM.ip to %ld\n", value);
 			IM.state = ERRMEM;
 			return;
 		}
@@ -102,6 +105,7 @@ void icm_jf() {
 			IM.ip = value;
 			return;
 		} else {
+			print("\nError setting IM.ip to %ld\n", value);
 			IM.state = ERRMEM;
 			return;
 		}
@@ -161,7 +165,7 @@ void icm_out() {
 void icm_in() {
 	vlong value = 0;
 
-	if( EOF == scanf("%d", &value) ) {
+	if( EOF == scanf("%lld", &value) ) {
 		IM.state = ERRIN;
 		return;
 	}
@@ -211,39 +215,41 @@ void icm_mult() {
  * Returns: value
  * Warning: changes IM.mode
  */
-vlong readmem(long addr) {
+vlong readmem(vlong addr) {
+	MemBlock *curr = NULL;
 	vlong value = 0;
-	long reladdr = 0;
+	vlong reladdr = 0;
 
 	switch( IM.mode%10 ) {
 		case POSITION:
-			if( valid(addr) ) {
-				if( valid( IM.mem[ addr ] ) ) {
-					value = IM.mem[ IM.mem[ addr ] ];
+			if( (curr=valid(addr)) ) {
+				value = curr->data[ addr%BSIZE ];
+				if( (curr=valid(value)) ) {
+					value = curr->data[ value%BSIZE ];
 				} else {
-					IM.state = ERRMEM;
+					value = 0;
 				}
 			} else {
-				IM.state = ERRMEM;
+				value = 0;
 			}
 			break;
 		case RELATIVE:
-			if( valid(addr) ) {
-				reladdr = IM.mem[ addr ] + IM.base;
-				if( valid( reladdr ) ) {
-					value = IM.mem[ reladdr ];
+			if( (curr=valid(addr)) ) {
+				reladdr = curr->data[ addr%BSIZE ] + IM.base;
+				if( (curr=valid(reladdr)) ) {
+					value = curr->data[ reladdr%BSIZE ];
 				} else {
-					IM.state = ERRMEM;
+					value = 0;
 				}
 			} else {
-				IM.state = ERRMEM;
+				value = 0;
 			}
 			break;
 		case IMMEDIATE:
-			if( valid(addr) ) {
-				value = IM.mem[ addr ];
+			if( (curr=valid(addr)) ) {
+				value = curr->data[ addr%BSIZE ];
 			} else {
-				IM.state = ERRMEM;
+				value = 0;
 			}
 			break;
 		default:
@@ -255,31 +261,35 @@ vlong readmem(long addr) {
 	return value;
 }
 
-void writemem( long addr, vlong value ) {
-	long reladdr = 0;
+void writemem(vlong addr, vlong value) {
+	MemBlock *curr = IM.mem;
+	vlong reladdr = 0;
 
 	switch( IM.mode%10 ) {
 		case POSITION:
-			if( valid( addr ) ) {
-				if( valid( IM.mem[ addr ] ) ) {
-					IM.mem[ IM.mem[ addr ] ] = value;
-				} else {
-					IM.state = ERRMEM;
-				}
+			if( (curr=valid( addr )) ) {
+				reladdr = curr->data[ addr%BSIZE ];
 			} else {
-				IM.state = ERRMEM;
+				reladdr = 0;
+			}
+			if( (curr=valid( reladdr )) ) {
+				curr->data[ reladdr%BSIZE ] = value;
+			} else {
+				curr = addblock( reladdr/BSIZE );
+				curr->data[ reladdr%BSIZE ] = value;
 			}
 			break;
 		case RELATIVE:
-			if( valid( addr ) ) {
-				reladdr = IM.mem[ addr ] + IM.base;
-				if( valid( reladdr ) ) {
-					IM.mem[ reladdr ] = value;
-				} else {
-					IM.state = ERRMEM;
-				}
+			if( (curr=valid( addr )) ) {
+				reladdr = curr->data[ addr%BSIZE ] + IM.base;
 			} else {
-				IM.state = ERRMEM;
+				reladdr = IM.base;
+			}
+			if( (curr=valid( reladdr )) ) {
+				curr->data[ reladdr%BSIZE ] = value;
+			} else {
+				curr = addblock( reladdr/BSIZE );
+				curr->data[ reladdr%BSIZE ] = value;
 			}
 			break;
 		case IMMEDIATE:   /* Fall through, immediate mode invalid */

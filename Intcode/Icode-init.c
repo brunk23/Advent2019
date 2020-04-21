@@ -3,15 +3,45 @@
 #include <stdio.h>
 #include "machine.h"
 
+MemBlock *newblock(vlong blocknum) {
+	MemBlock *b = 0;
+	int i;
+
+	print("Creating block: %lld\n", blocknum);
+	b = malloc(sizeof(MemBlock));
+	if( !b ) {
+		print("FAILED TO GET MEMORY.\n");
+		abort();
+	}
+
+	b->block = blocknum;
+	b->next = NULL;
+	for( i = 0; i < BSIZE; i++ ) {
+		b->data[i] = 0;
+	}
+	return b;
+}
+
+MemBlock *addblock(vlong blocknum) {
+	MemBlock *curr = IM.mem;
+
+	while( curr->next ) {
+		curr = curr->next;
+	}
+
+	curr->next = newblock( blocknum );
+
+	return curr->next;
+}
+				
+
 /*
  * Set machine up for initial run.
  */
 int init(void) {
 	int i;
 
-	for( i = 0; i < SIZE; i++ ) {
-		IM.mem[i] = 0;
-	}
+	IM.mem = newblock(0);
 
 	IM.ip = 0;
 	IM.inst = 0;
@@ -24,24 +54,20 @@ int init(void) {
 /*
  * Print memory range.
  */
-int print_mem(long start, long end) {
-	int n;
+int print_mem() {
+	MemBlock *curr = IM.mem;
+	vlong n;
 
-	if( start < 0 ) {
-		start = 0;
-	}
-
-	if( end >= SIZE ) {
-		end = SIZE - 1;
-	}
-
-	for( n = 0; (n+start) <= end; n++ ) {
-		if( n%10 == 0 ) {
-			print("\n%ld:\t",n+start);
+	while( curr ) {
+		print("\n");
+		for( n = 0; n < BSIZE; n++ ) {
+			if( n%10 == 0 ) {
+				print("\n%lld-%lld:\t",curr->block,n);
+			}
+			print("%lld\t", curr->data[n]);
 		}
-		print("%lld\t", IM.mem[n+start]);
+		curr = curr->next;
 	}
-
 	return 0;
 }
 
@@ -49,9 +75,10 @@ int print_mem(long start, long end) {
  * Will read input in form: 1,2,3,4,5,6,0,32,2 ... and put it into memory
  * Returns number of integers read
  */
-long populate(void) {
-	long numbersRead = 0;
+vlong populate(void) {
+	vlong numbersRead = 0, block = 0, curr = 0, value = 0;
 	FILE *fp;
+	MemBlock *blk = IM.mem;
 
 	fp = fopen("input", "r");
 
@@ -59,11 +86,15 @@ long populate(void) {
 		return ERRFILE;
 	}
 
-	while( EOF != ( fscanf(fp, "%d,", &IM.mem[ numbersRead++ ] ) ) ) {
-		if( numbersRead == SIZE ) {
-			print("MEMORY FULL\n\tPopulate Halted\n\n");
-			return numbersRead;
+	while( EOF != ( fscanf(fp, "%d,", &value ) ) ) {
+		if( curr == BSIZE ) {
+			block++;
+			blk = addblock( block );
+			curr = 0;	
 		}
+		blk->data[curr] = value;
+		curr++;
+		numbersRead++;
 	}
 
 	fclose(fp);
@@ -71,13 +102,23 @@ long populate(void) {
 }
 
 /*
- * Returns 1 if address is valid, and 0 if not.
+ * Returns pointer to block if address is valid, and NULL if not.
  */
-int valid(long addr) {
-	if( addr >=0 && addr < SIZE ) {
-		return 1;
+MemBlock *valid(vlong addr) {
+	MemBlock *curr = IM.mem;
+	vlong blk = addr / BSIZE;
+
+	if( addr < 0 ) {
+		return NULL;
 	}
-	return 0;
+
+	while( curr ) {
+		if( curr->block == blk ) {
+			return curr;
+		}
+		curr = curr->next;
+	}
+	return NULL;
 }
 
 char *print_state() {

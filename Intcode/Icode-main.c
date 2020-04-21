@@ -3,6 +3,8 @@
 #include "machine.h"
 
 int main(int argc, char *argv[]) {
+	MemBlock *curr = 0;
+
 	init();
 
 	if( populate() == ERRFILE ) {
@@ -16,10 +18,17 @@ int main(int argc, char *argv[]) {
 	}
 
 	if( IM.state != STOPPED ) {
-		print_mem( IM.ip, IM.ip + 3 );
+		print_mem();
 		print("\n\n");
 	}
 
-	print("IP: %d\nState: %s\nMem[0]: %lld\n",IM.ip, print_state(), IM.mem[0]);
+	print("IP: %d\nState: %s\nMem[0]: %lld\n",IM.ip, print_state(), IM.mem->data[0]);
+
+	/* Free the memory tree */
+	while( IM.mem ) {
+		curr = IM.mem->next;
+		free(IM.mem);
+		IM.mem = curr;
+	}		
 	return 0;
 }
