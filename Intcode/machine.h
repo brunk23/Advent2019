@@ -1,4 +1,4 @@
-#define WSIZE	10000
+#define WSIZE	2000
 #define MAXSTR	4000
 #define EMPTY	-1
 #define POSITION 0
@@ -21,6 +21,7 @@
 #define ERRMODE	27
 #define ERRIN	28
 #define ERRFILE	-1
+#define DEBUG	0
 
 #define RUNNINGP if( IM.state != RUNNING ) { return; }
 
