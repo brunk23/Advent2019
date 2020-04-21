@@ -11,6 +11,8 @@
 #define ERROP	25
 #define ERRMEM	26
 #define ERRMODE	27
+#define ERRIN	28
+#define ERRFILE	-1
 
 struct Intcode_machine {
 	int ip;
@@ -32,5 +34,7 @@ void step(void);
 void icm_add(void);
 void icm_mult(void);
 void icm_halt(void);
+void icm_in(void);
+void icm_out(void);
 long long readmem(int);
 void writemem(int, long long);

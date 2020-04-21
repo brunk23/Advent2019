@@ -5,8 +5,10 @@
 int main(int argc, char *argv[]) {
 	init();
 
-	populate();
-
+	if( populate() == ERRFILE ) {
+		print("Could not open file 'input' for reading.\n");
+		return 1;
+	}
 
 	IM.state = RUNNING;
 	while( IM.state == RUNNING ) {

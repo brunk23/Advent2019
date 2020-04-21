@@ -42,14 +42,22 @@ int print_mem(int start, int end) {
  */
 int populate(void) {
 	int numbersRead = 0;
+	FILE *fp;
 
-	while( EOF != ( scanf("%d,", &IM.mem[ numbersRead++ ] ) ) ) {
+	fp = fopen("input", "r");
+
+	if( !fp ) {
+		return ERRFILE;
+	}
+
+	while( EOF != ( fscanf(fp, "%d,", &IM.mem[ numbersRead++ ] ) ) ) {
 		if( numbersRead == SIZE ) {
 			print("MEMORY FULL\n\tPopulate Halted\n\n");
 			return numbersRead;
 		}
 	}
 
+	fclose(fp);
 	return numbersRead;
 }
 
@@ -75,6 +83,8 @@ char *print_state() {
 			return "ERRMODE";
 		case ERROP:
 			return "ERROP";
+		case ERRIN:
+			return "ERRIN";
 		default:
 			break;
 	}

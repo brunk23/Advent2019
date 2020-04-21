@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <stdio.h>
 #include "machine.h"
 
 void step(void) {
@@ -23,6 +24,12 @@ void step(void) {
 		case MULT:
 			icm_mult();
 			break;
+		case IN:
+			icm_in();
+			break;
+		case OUT:
+			icm_out();
+			break;
 		case HALT:
 			icm_halt();
 			break;
@@ -35,6 +42,35 @@ void step(void) {
 void icm_halt() {
 	IM.ip++;
 	IM.state = STOPPED;
+}
+
+void icm_out() {
+	long long value = 0;
+
+	value = readmem( IM.ip + 1 );
+	if( IM.state != RUNNING ) {
+		return;
+	}
+
+	print("%d\n", value);
+
+	IM.ip += 2;
+}
+
+void icm_in() {
+	long long value = 0;
+
+	if( EOF == scanf("%d", &value) ) {
+		IM.state = ERRIN;
+		return;
+	}
+
+	writemem( IM.ip + 1, value );
+	if( IM.state != RUNNING ) {
+		return;
+	}
+
+	IM.ip += 2;
 }
 
 void icm_add() {
