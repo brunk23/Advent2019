@@ -4,11 +4,10 @@
 #include "machine.h"
 
 void step(void) {
-	MemBlock *curr = NULL;
-	vlong value;
+	vlong value, *curr;
 
 	if( curr=valid( IM.ip ) ) {
-		value = curr->data[ IM.ip%BSIZE ];
+		value = *curr;
 	} else {
 		print("\nError setting IM.ip to %ld\n", IM.ip);
 		IM.state = ERRMEM;
@@ -216,16 +215,16 @@ void icm_mult() {
  * Warning: changes IM.mode
  */
 vlong readmem(vlong addr) {
-	MemBlock *curr = NULL;
+	vlong *curr = NULL;
 	vlong value = 0;
-	vlong reladdr = 0;
+	long reladdr = 0;
 
 	switch( IM.mode%10 ) {
 		case POSITION:
 			if( (curr=valid(addr)) ) {
-				value = curr->data[ addr%BSIZE ];
+				value = *curr;
 				if( (curr=valid(value)) ) {
-					value = curr->data[ value%BSIZE ];
+					value = *curr;
 				} else {
 					value = 0;
 				}
@@ -235,25 +234,21 @@ vlong readmem(vlong addr) {
 			break;
 		case RELATIVE:
 			if( (curr=valid(addr)) ) {
-				print("val: %lld\t+\tbase: %lld\n",curr->data[ addr%BSIZE ],IM.base);
-				reladdr = curr->data[ addr%BSIZE ] + IM.base;
+				reladdr = *curr + IM.base;
 			} else {
 				reladdr = IM.base;
 			}
 			if( (curr=valid(reladdr)) ) {
-				value = curr->data[ reladdr%BSIZE ];
+				value = *curr;
 			} else {
 				value = 0;
-				print("Relative DNE: %lld\n", reladdr);
-				IM.state = ERRMEM;
 			}
 			break;
 		case IMMEDIATE:
 			if( (curr=valid(addr)) ) {
-				value = curr->data[ addr%BSIZE ];
+				value = *curr;
 			} else {
 				value = 0;
-				IM.state = ERRMEM;
 			}
 			break;
 		default:
@@ -266,34 +261,32 @@ vlong readmem(vlong addr) {
 }
 
 void writemem(vlong addr, vlong value) {
-	MemBlock *curr = IM.mem;
-	vlong reladdr = 0;
+	vlong *curr = NULL;
+	long reladdr = 0;
 
 	switch( IM.mode%10 ) {
 		case POSITION:
 			if( (curr=valid( addr )) ) {
-				reladdr = curr->data[ addr%BSIZE ];
+				reladdr = *curr;
 			} else {
 				reladdr = 0;
 			}
 			if( (curr=valid( reladdr )) ) {
-				curr->data[ reladdr%BSIZE ] = value;
+				*curr = value;
 			} else {
-				curr = addblock( reladdr/BSIZE );
-				curr->data[ reladdr%BSIZE ] = value;
+				addpair( reladdr, value);
 			}
 			break;
 		case RELATIVE:
 			if( (curr=valid( addr )) ) {
-				reladdr = curr->data[ addr%BSIZE ] + IM.base;
+				reladdr = *curr + IM.base;
 			} else {
 				reladdr = IM.base;
 			}
 			if( (curr=valid( reladdr )) ) {
-				curr->data[ reladdr%BSIZE ] = value;
+				*curr = value;
 			} else {
-				curr = addblock( reladdr/BSIZE );
-				curr->data[ reladdr%BSIZE ] = value;
+				addpair( reladdr, value );
 			}
 			break;
 		case IMMEDIATE:   /* Fall through, immediate mode invalid */

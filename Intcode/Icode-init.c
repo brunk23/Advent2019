@@ -3,44 +3,19 @@
 #include <stdio.h>
 #include "machine.h"
 
-MemBlock *newblock(vlong blocknum) {
-	MemBlock *b = 0;
-	int i;
-
-	b = malloc(sizeof(MemBlock));
-	if( !b ) {
-		print("FAILED TO GET MEMORY.\n");
-		abort();
-	}
-
-	b->block = blocknum;
-	b->next = NULL;
-	for( i = 0; i < BSIZE; i++ ) {
-		b->data[i] = 0;
-	}
-	return b;
-}
-
-MemBlock *addblock(vlong blocknum) {
-	MemBlock *curr = IM.mem;
-
-	while( curr->next ) {
-		curr = curr->next;
-	}
-
-	curr->next = newblock( blocknum );
-
-	return curr->next;
-}
-				
-
 /*
  * Set machine up for initial run.
  */
 int init(void) {
 	int i;
 
-	IM.mem = newblock(0);
+	/*
+	 * Clear the address table, set all cells EMPTY
+	 */
+	for( i = 0; i < WSIZE; i++ ) {
+		IM.mem[i][0] = EMPTY;
+		IM.mem[i][1] = 0;
+	}
 
 	IM.ip = 0;
 	IM.inst = 0;
@@ -54,19 +29,13 @@ int init(void) {
  * Print memory range.
  */
 int print_mem() {
-	MemBlock *curr = IM.mem;
-	vlong n;
+	int i = 0;
+	vlong prev = 0;
 
-	while( curr ) {
-		print("\n");
-		for( n = 0; n < BSIZE; n++ ) {
-			if( n%10 == 0 ) {
-				print("\n%lld-%lld:\t",curr->block,n);
-			}
-			print("%lld\t", curr->data[n]);
-		}
-		curr = curr->next;
+	for( i = 0; i < WSIZE; i++ ) {
+		print("%lld: %lld\n", IM.mem[i][0], IM.mem[i][1]);
 	}
+
 	return 0;
 }
 
@@ -75,9 +44,8 @@ int print_mem() {
  * Returns number of integers read
  */
 vlong populate(void) {
-	vlong numbersRead = 0, block = 0, curr = 0, value = 0;
+	vlong numbersRead = 0, value = 0;
 	FILE *fp;
-	MemBlock *blk = IM.mem;
 
 	fp = fopen("input", "r");
 
@@ -86,14 +54,13 @@ vlong populate(void) {
 	}
 
 	while( EOF != ( fscanf(fp, "%d,", &value ) ) ) {
-		if( curr == BSIZE ) {
-			block++;
-			blk = addblock( block );
-			curr = 0;	
-		}
-		blk->data[curr] = value;
-		curr++;
+		IM.mem[ numbersRead ][0] = numbersRead;
+		IM.mem[ numbersRead ][1] = value;
 		numbersRead++;
+		if( numbersRead == WSIZE ) {
+			print("Out of memory during populate!\n");
+			abort();
+		}
 	}
 
 	fclose(fp);
@@ -101,23 +68,43 @@ vlong populate(void) {
 }
 
 /*
- * Returns pointer to block if address is valid, and NULL if not.
+ * Returns pointer to data if address is valid, and NULL if not.
  */
-MemBlock *valid(vlong addr) {
-	MemBlock *curr = IM.mem;
-	vlong blk = addr / BSIZE;
+vlong *valid(vlong addr) {
+	int i = 0;
 
 	if( addr < 0 ) {
 		return NULL;
 	}
 
-	while( curr ) {
-		if( curr->block == blk ) {
-			return curr;
+	for( i = 0; i < WSIZE; i++ ) {
+		if( IM.mem[i][0] == addr ) {
+			return &IM.mem[i][1];
 		}
-		curr = curr->next;
+		if( IM.mem[i][0] == EMPTY ) {
+			break;
+		}
 	}
 	return NULL;
+}
+
+void addpair( vlong addr, vlong value ) {
+	int i = 0;
+
+	for( i = 0; i < WSIZE; i++ ) {
+		if( IM.mem[i][0] == addr ) {
+			/* This should never happen */
+			IM.mem[i][1] = value;
+			return;
+		}
+		if( IM.mem[i][0] == EMPTY ) {
+			IM.mem[i][0] = addr;
+			IM.mem[i][1] = value;
+			return;
+		}
+	}
+	print("Out of memory in addpair\n");
+	IM.state = ERRMEM;
 }
 
 char *print_state() {
