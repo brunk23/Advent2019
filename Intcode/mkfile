@@ -1,4 +1,4 @@
-icode: Icode-init.6 Icode-op.6 Icode-main.6
+icode: Icode-init.6 Icode-op.6 Icode-main.6 Icode-io.6
 	6l -o icode Icode-init.6 Icode-op.6 Icode-io.6 Icode-main.6
 
 robot: Icode-init.6 Icode-op.6 Icode-robot.6 Icode-robot-io.6
@@ -24,3 +24,6 @@ Icode-robot-io.6: Icode-robot-io.c machine.h
 
 clean:
 	rm *.6
+
+commit:
+	git/commit *[ch] mkfile
