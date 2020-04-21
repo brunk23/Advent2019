@@ -42,6 +42,9 @@ void step(void) {
 		case JF:
 			icm_jf();
 			break;
+		case ADJRB:
+			icm_adjrb();
+			break;
 		case HALT:
 			icm_halt();
 			break;
@@ -56,8 +59,18 @@ void icm_halt() {
 	IM.state = STOPPED;
 }
 
+void icm_adjrb() {
+	vlong value = 0;
+
+	value = readmem( IM.ip + 1 );
+	RUNNINGP;
+
+	IM.base += value;
+	IM.ip += 2;
+}
+
 void icm_jt() {
-	long long value = 0;
+	vlong value = 0;
 
 	value = readmem( IM.ip + 1 );
 	RUNNINGP;
@@ -77,7 +90,7 @@ void icm_jt() {
 }
 
 void icm_jf() {
-	long long value = 0;
+	vlong value = 0;
 
 	value = readmem( IM.ip + 1 );
 	RUNNINGP;
@@ -97,7 +110,7 @@ void icm_jf() {
 }
 
 void icm_lt() {
-	long long noun = 0, verb = 0;
+	vlong noun = 0, verb = 0;
 
 	noun = readmem( IM.ip + 1 );
 	RUNNINGP;
@@ -116,7 +129,7 @@ void icm_lt() {
 }
 
 void icm_eq() {
-	long long noun = 0, verb = 0;
+	vlong noun = 0, verb = 0;
 
 	noun = readmem( IM.ip + 1 );
 	RUNNINGP;
@@ -135,18 +148,18 @@ void icm_eq() {
 }
 
 void icm_out() {
-	long long value = 0;
+	vlong value = 0;
 
 	value = readmem( IM.ip + 1 );
 	RUNNINGP;
 
-	print("%d\n", value);
+	print("%lld\n", value);
 
 	IM.ip += 2;
 }
 
 void icm_in() {
-	long long value = 0;
+	vlong value = 0;
 
 	if( EOF == scanf("%d", &value) ) {
 		IM.state = ERRIN;
@@ -160,7 +173,7 @@ void icm_in() {
 }
 
 void icm_add() {
-	long long noun = 0, verb = 0;
+	vlong noun = 0, verb = 0;
 
 	noun = readmem( IM.ip + 1 );
 	RUNNINGP;
@@ -177,7 +190,7 @@ void icm_add() {
 }
 
 void icm_mult() {
-	long long noun = 0, verb = 0;
+	vlong noun = 0, verb = 0;
 
 	noun = readmem( IM.ip + 1 );
 	RUNNINGP;
@@ -198,14 +211,27 @@ void icm_mult() {
  * Returns: value
  * Warning: changes IM.mode
  */
-long long readmem(int addr) {
-	long long value = 0;
+vlong readmem(long addr) {
+	vlong value = 0;
+	long reladdr = 0;
 
 	switch( IM.mode%10 ) {
 		case POSITION:
 			if( valid(addr) ) {
 				if( valid( IM.mem[ addr ] ) ) {
-					value = IM.mem [ IM.mem[ addr ] ];
+					value = IM.mem[ IM.mem[ addr ] ];
+				} else {
+					IM.state = ERRMEM;
+				}
+			} else {
+				IM.state = ERRMEM;
+			}
+			break;
+		case RELATIVE:
+			if( valid(addr) ) {
+				reladdr = IM.mem[ addr ] + IM.base;
+				if( valid( reladdr ) ) {
+					value = IM.mem[ reladdr ];
 				} else {
 					IM.state = ERRMEM;
 				}
@@ -229,12 +255,26 @@ long long readmem(int addr) {
 	return value;
 }
 
-void writemem( int addr, long long value ) {
+void writemem( long addr, vlong value ) {
+	long reladdr = 0;
+
 	switch( IM.mode%10 ) {
 		case POSITION:
 			if( valid( addr ) ) {
 				if( valid( IM.mem[ addr ] ) ) {
 					IM.mem[ IM.mem[ addr ] ] = value;
+				} else {
+					IM.state = ERRMEM;
+				}
+			} else {
+				IM.state = ERRMEM;
+			}
+			break;
+		case RELATIVE:
+			if( valid( addr ) ) {
+				reladdr = IM.mem[ addr ] + IM.base;
+				if( valid( reladdr ) ) {
+					IM.mem[ reladdr ] = value;
 				} else {
 					IM.state = ERRMEM;
 				}

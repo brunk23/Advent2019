@@ -16,6 +16,7 @@ int init(void) {
 	IM.ip = 0;
 	IM.inst = 0;
 	IM.mode = 0;
+	IM.base = 0;
 
 	return 0;
 }
@@ -23,14 +24,22 @@ int init(void) {
 /*
  * Print memory range.
  */
-int print_mem(int start, int end) {
+int print_mem(long start, long end) {
 	int n;
+
+	if( start < 0 ) {
+		start = 0;
+	}
+
+	if( end >= SIZE ) {
+		end = SIZE - 1;
+	}
 
 	for( n = 0; (n+start) <= end; n++ ) {
 		if( n%10 == 0 ) {
-			print("\n%d:\t",n+start);
+			print("\n%ld:\t",n+start);
 		}
-		print("%d\t", IM.mem[n+start]);
+		print("%lld\t", IM.mem[n+start]);
 	}
 
 	return 0;
@@ -40,8 +49,8 @@ int print_mem(int start, int end) {
  * Will read input in form: 1,2,3,4,5,6,0,32,2 ... and put it into memory
  * Returns number of integers read
  */
-int populate(void) {
-	int numbersRead = 0;
+long populate(void) {
+	long numbersRead = 0;
 	FILE *fp;
 
 	fp = fopen("input", "r");
@@ -64,7 +73,7 @@ int populate(void) {
 /*
  * Returns 1 if address is valid, and 0 if not.
  */
-int valid(int addr) {
+int valid(long addr) {
 	if( addr >=0 && addr < SIZE ) {
 		return 1;
 	}

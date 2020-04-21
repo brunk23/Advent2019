@@ -15,6 +15,11 @@ int main(int argc, char *argv[]) {
 		step();
 	}
 
-	print("IP: %d\nState: %s\nMem[0]: %d\n",IM.ip, print_state(), IM.mem[0]);
+	if( IM.state != STOPPED ) {
+		print_mem( IM.ip, IM.ip + 3 );
+		print("\n\n");
+	}
+
+	print("IP: %d\nState: %s\nMem[0]: %lld\n",IM.ip, print_state(), IM.mem[0]);
 	return 0;
 }
