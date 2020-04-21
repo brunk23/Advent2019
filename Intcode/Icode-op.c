@@ -4,8 +4,8 @@
 #include "machine.h"
 
 void step(void) {
-	MemBlock *curr;
-	int value;
+	MemBlock *curr = NULL;
+	vlong value;
 
 	if( curr=valid( IM.ip ) ) {
 		value = curr->data[ IM.ip%BSIZE ];
@@ -165,7 +165,7 @@ void icm_out() {
 void icm_in() {
 	vlong value = 0;
 
-	if( EOF == scanf("%lld", &value) ) {
+	if( EOF == scanf("%d", &value) ) {
 		IM.state = ERRIN;
 		return;
 	}
@@ -235,14 +235,17 @@ vlong readmem(vlong addr) {
 			break;
 		case RELATIVE:
 			if( (curr=valid(addr)) ) {
+				print("val: %lld\t+\tbase: %lld\n",curr->data[ addr%BSIZE ],IM.base);
 				reladdr = curr->data[ addr%BSIZE ] + IM.base;
-				if( (curr=valid(reladdr)) ) {
-					value = curr->data[ reladdr%BSIZE ];
-				} else {
-					value = 0;
-				}
+			} else {
+				reladdr = IM.base;
+			}
+			if( (curr=valid(reladdr)) ) {
+				value = curr->data[ reladdr%BSIZE ];
 			} else {
 				value = 0;
+				print("Relative DNE: %lld\n", reladdr);
+				IM.state = ERRMEM;
 			}
 			break;
 		case IMMEDIATE:
@@ -250,6 +253,7 @@ vlong readmem(vlong addr) {
 				value = curr->data[ addr%BSIZE ];
 			} else {
 				value = 0;
+				IM.state = ERRMEM;
 			}
 			break;
 		default:

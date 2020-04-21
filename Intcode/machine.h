@@ -1,4 +1,4 @@
-#define BSIZE	100
+#define BSIZE	1000
 #define POSITION 0
 #define IMMEDIATE 1
 #define RELATIVE 2

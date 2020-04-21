@@ -7,7 +7,6 @@ MemBlock *newblock(vlong blocknum) {
 	MemBlock *b = 0;
 	int i;
 
-	print("Creating block: %lld\n", blocknum);
 	b = malloc(sizeof(MemBlock));
 	if( !b ) {
 		print("FAILED TO GET MEMORY.\n");
