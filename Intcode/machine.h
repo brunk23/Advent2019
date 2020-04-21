@@ -5,6 +5,10 @@
 #define MULT	2
 #define	IN	3
 #define OUT	4
+#define JT	5
+#define JF	6
+#define LT	7
+#define EQ	8
 #define HALT	99
 #define STOPPED	23
 #define RUNNING 24
@@ -13,6 +17,8 @@
 #define ERRMODE	27
 #define ERRIN	28
 #define ERRFILE	-1
+
+#define RUNNINGP if( IM.state != RUNNING ) { return; }
 
 struct Intcode_machine {
 	int ip;
@@ -36,5 +42,9 @@ void icm_mult(void);
 void icm_halt(void);
 void icm_in(void);
 void icm_out(void);
+void icm_jt(void);
+void icm_jf(void);
+void icm_lt(void);
+void icm_eq(void);
 long long readmem(int);
 void writemem(int, long long);

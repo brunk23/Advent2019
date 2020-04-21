@@ -30,6 +30,18 @@ void step(void) {
 		case OUT:
 			icm_out();
 			break;
+		case LT:
+			icm_lt();
+			break;
+		case EQ:
+			icm_eq();
+			break;
+		case JT:
+			icm_jt();
+			break;
+		case JF:
+			icm_jf();
+			break;
 		case HALT:
 			icm_halt();
 			break;
@@ -44,13 +56,89 @@ void icm_halt() {
 	IM.state = STOPPED;
 }
 
+void icm_jt() {
+	long long value = 0;
+
+	value = readmem( IM.ip + 1 );
+	RUNNINGP;
+
+	if( value != 0 ) {
+		value = readmem( IM.ip + 2 );
+		RUNNINGP;
+		if( valid(value) ) {
+			IM.ip = value;
+			return;
+		} else {
+			IM.state = ERRMEM;
+			return;
+		}
+	}
+	IM.ip += 3;
+}
+
+void icm_jf() {
+	long long value = 0;
+
+	value = readmem( IM.ip + 1 );
+	RUNNINGP;
+
+	if( value == 0 ) {
+		value = readmem( IM.ip + 2 );
+		RUNNINGP;
+		if( valid(value) ) {
+			IM.ip = value;
+			return;
+		} else {
+			IM.state = ERRMEM;
+			return;
+		}
+	}
+	IM.ip += 3;
+}
+
+void icm_lt() {
+	long long noun = 0, verb = 0;
+
+	noun = readmem( IM.ip + 1 );
+	RUNNINGP;
+
+	verb = readmem( IM.ip + 2 );
+	RUNNINGP;
+
+	if( noun < verb ) {
+		writemem( IM.ip + 3, 1 );
+	} else {
+		writemem( IM.ip + 3, 0 );
+	}
+	RUNNINGP;
+
+	IM.ip += 4;
+}
+
+void icm_eq() {
+	long long noun = 0, verb = 0;
+
+	noun = readmem( IM.ip + 1 );
+	RUNNINGP;
+
+	verb = readmem( IM.ip + 2 );
+	RUNNINGP;
+
+	if( noun == verb ) {
+		writemem( IM.ip + 3, 1 );
+	} else {
+		writemem( IM.ip + 3, 0 );
+	}
+	RUNNINGP;
+
+	IM.ip += 4;
+}
+
 void icm_out() {
 	long long value = 0;
 
 	value = readmem( IM.ip + 1 );
-	if( IM.state != RUNNING ) {
-		return;
-	}
+	RUNNINGP;
 
 	print("%d\n", value);
 
@@ -66,9 +154,7 @@ void icm_in() {
 	}
 
 	writemem( IM.ip + 1, value );
-	if( IM.state != RUNNING ) {
-		return;
-	}
+	RUNNINGP;
 
 	IM.ip += 2;
 }
@@ -77,21 +163,15 @@ void icm_add() {
 	long long noun = 0, verb = 0;
 
 	noun = readmem( IM.ip + 1 );
-	if( IM.state != RUNNING ) {
-		return;
-	}
+	RUNNINGP;
 
 	verb = readmem( IM.ip + 2 );
-	if( IM.state != RUNNING ) {
-		return;
-	}
+	RUNNINGP;
 
 	noun += verb;
 
 	writemem( IM.ip + 3, noun);
-	if( IM.state != RUNNING ) {
-		return;
-	}
+	RUNNINGP;
 
 	IM.ip += 4;
 }
@@ -100,21 +180,15 @@ void icm_mult() {
 	long long noun = 0, verb = 0;
 
 	noun = readmem( IM.ip + 1 );
-	if( IM.state != RUNNING ) {
-		return;
-	}
+	RUNNINGP;
 
 	verb = readmem( IM.ip + 2 );
-	if( IM.state != RUNNING ) {
-		return;
-	}
+	RUNNINGP;
 
 	noun *= verb;
 
 	writemem( IM.ip + 3, noun);
-	if( IM.state != RUNNING ) {
-		return;
-	}
+	RUNNINGP;
 
 	IM.ip += 4;
 }
