@@ -7,7 +7,7 @@
  * Set machine up for initial run.
  */
 int init(void) {
-	int i;
+	int i = 0;
 
 	/*
 	 * Clear the address table, set all cells EMPTY
@@ -30,7 +30,6 @@ int init(void) {
  */
 int print_mem() {
 	int i = 0;
-	vlong prev = 0;
 
 	for( i = 0; i < WSIZE; i++ ) {
 		print("%lld: %lld\n", IM.mem[i][0], IM.mem[i][1]);

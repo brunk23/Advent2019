@@ -47,8 +47,6 @@ void step(void);
 void icm_add(void);
 void icm_mult(void);
 void icm_halt(void);
-void icm_in(void);
-void icm_out(void);
 void icm_jt(void);
 void icm_jf(void);
 void icm_lt(void);
@@ -56,3 +54,7 @@ void icm_eq(void);
 void icm_adjrb(void);
 vlong readmem(long);
 void writemem(long, vlong);
+
+/* In specialized io file for project */
+void icm_in(void);
+void icm_out(void);
