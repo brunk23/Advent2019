@@ -4,7 +4,7 @@ icode: Icode-init.6 Icode-op.6 Icode-main.6 Icode-io.6
 robot: Icode-init.6 Icode-op.6 Icode-robot.6 Icode-robot-io.6
 	6l -o robot Icode-init.6 Icode-op.6 Icode-robot.6 Icode-robot-io.6
 
-Icode-robot.6: Icode-robot.c machine.h
+Icode-robot.6: Icode-robot.c machine.h robot.h
 	6c Icode-robot.c
 
 Icode-init.6: Icode-init.c machine.h
@@ -19,7 +19,7 @@ Icode-main.6: Icode-main.c machine.h
 Icode-io.6: Icode-io.c machine.h
 	6c Icode-io.c
 
-Icode-robot-io.6: Icode-robot-io.c machine.h
+Icode-robot-io.6: Icode-robot-io.c machine.h robot.h
 	6c Icode-robot-io.c
 
 clean:
