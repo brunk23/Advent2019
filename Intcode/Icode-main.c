@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 		print("\n\n");
 	}
 
-	print("IP: %d\nState: %s\nMem[0]: %lld\n",IM.ip, print_state(), IM.mem[0][0]);
+	print("\n\n\tIP: %d\n\tState: %s\n\tMem[0]: %lld\n",IM.ip, print_state(), IM.mem[0][0]);
 
 	return 0;
 }

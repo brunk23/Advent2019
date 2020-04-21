@@ -45,6 +45,9 @@ int print_mem() {
  */
 vlong populate(void) {
 	vlong numbersRead = 0, value = 0;
+	int sign = 0;
+	long maxlen = 0, i, j;
+	char str[MAXSTR];
 	FILE *fp;
 
 	fp = fopen("input", "r");
@@ -53,16 +56,33 @@ vlong populate(void) {
 		return ERRFILE;
 	}
 
-	while( EOF != ( fscanf(fp, "%d,", &value ) ) ) {
-		IM.mem[ numbersRead ][0] = numbersRead;
-		IM.mem[ numbersRead ][1] = value;
-		numbersRead++;
-		if( numbersRead == WSIZE ) {
-			print("Out of memory during populate!\n");
-			abort();
+	while( EOF != ( fscanf(fp, "%s,", str ) ) ) {
+		maxlen = strlen(str);
+		for( i = 0; i < maxlen; i++ ) {
+			value = 0;
+			sign = 1;
+			for( j = i; j < maxlen; j++ ) {
+				if( str[j] == ',' ) {
+					break;
+				}
+				i++;
+				if( value == 0 && str[j] == '-' ) {
+					sign = -1;
+					continue;
+				}
+				value *= 10;
+				value += str[j] - '0';
+			}
+			value *= sign;
+			IM.mem[ numbersRead ][0] = numbersRead;
+			IM.mem[ numbersRead ][1] = value;
+			numbersRead++;
+			if( numbersRead == WSIZE ) {
+				print("Out of memory during populate!\n");
+				abort();
+			}
 		}
 	}
-
 	fclose(fp);
 	return numbersRead;
 }

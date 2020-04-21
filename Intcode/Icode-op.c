@@ -61,7 +61,7 @@ void icm_halt() {
 }
 
 void icm_adjrb() {
-	vlong value = 0;
+	long value = 0;
 
 	value = readmem( IM.ip + 1 );
 	RUNNINGP;
@@ -214,7 +214,7 @@ void icm_mult() {
  * Returns: value
  * Warning: changes IM.mode
  */
-vlong readmem(vlong addr) {
+vlong readmem(long addr) {
 	vlong *curr = NULL;
 	vlong value = 0;
 	long reladdr = 0;
@@ -260,7 +260,7 @@ vlong readmem(vlong addr) {
 	return value;
 }
 
-void writemem(vlong addr, vlong value) {
+void writemem(long addr, vlong value) {
 	vlong *curr = NULL;
 	long reladdr = 0;
 

@@ -1,4 +1,5 @@
-#define WSIZE	800000
+#define WSIZE	10000
+#define MAXSTR	4000
 #define EMPTY	-1
 #define POSITION 0
 #define IMMEDIATE 1
@@ -24,11 +25,11 @@
 #define RUNNINGP if( IM.state != RUNNING ) { return; }
 
 struct Intcode_machine {
-	vlong ip;
-	vlong base;
-	vlong inst;
-	vlong mode;
-	vlong state;
+	int ip;
+	long base;
+	int inst;
+	int mode;
+	int state;
 	vlong mem[WSIZE][2];
 } IM;
 
@@ -52,5 +53,5 @@ void icm_jf(void);
 void icm_lt(void);
 void icm_eq(void);
 void icm_adjrb(void);
-vlong readmem(vlong);
-void writemem(vlong, vlong);
+vlong readmem(long);
+void writemem(long, vlong);
