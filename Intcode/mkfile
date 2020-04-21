@@ -1,0 +1,14 @@
+icode: Icode-init.6 Icode-op.6 Icode-main.6
+	6l -o icode Icode-init.6 Icode-op.6 Icode-main.6
+
+Icode-init.6: Icode-init.c machine.h
+	6c Icode-init.c
+
+Icode-op.6: Icode-op.c machine.h
+	6c Icode-op.c
+
+Icode-main.6: Icode-main.c machine.h
+	6c Icode-main.c
+
+clean:
+	rm *.6
