@@ -10,7 +10,7 @@ void init_screen() {
 	screen.y_min = 0;
 	screen.y_max = 0;
 	screen.view = NULL;
-	resize_screen( 0, 0, 10, 10 );
+	resize_screen( 0, 0, 39, 20 );
 }
 
 int count_blocks() {
@@ -158,7 +158,17 @@ void icm_out() {
 			arcade.state = WV;
 			break;
 		case WV:
-			put_val( arcade.x, arcade.y, value );
+			if( arcade.x == -1 && arcade.y == 0) {
+				print("Score: %ld\n", value);
+			} else {
+				if( value == BALL ) {
+					arcade.ball = arcade.x;
+				}
+				if( value == HPAD ) {
+					arcade.pad = arcade.x;
+				}
+				put_val( arcade.x, arcade.y, value );
+			}
 			arcade.state = WX;
 			break;
 		default:
@@ -176,5 +186,11 @@ void icm_in() {
 }
 
 vlong arcade_read() {
+	if( arcade.pad > (arcade.ball) ) {
+		return -1;
+	}
+	if( arcade.pad < (arcade.ball) ) {
+		return 1;
+	}
 	return 0;
 }

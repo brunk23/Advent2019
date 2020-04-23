@@ -8,6 +8,8 @@ int main(int argc, char *argv[]) {
 	int blocks = 0;
 	init();
 	init_screen();
+	arcade.ball = 0;
+	arcade.pad = 0;
 
 	if( populate() == ERRFILE ) {
 		print("Could not open file 'input' for reading.\n");
@@ -15,6 +17,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	IM.state = RUNNING;
+	IM.mem[0][1] = 2;
 	while( IM.state == RUNNING ) {
 		step();
 	}
