@@ -82,8 +82,7 @@ vlong populate(void) {
 			IM.mem[ numbersRead ][1] = value;
 			numbersRead++;
 			if( numbersRead == WSIZE ) {
-				print("Out of memory during populate!\n");
-				abort();
+				exits("Out of memory during populate!");
 			}
 		}
 	}

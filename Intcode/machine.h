@@ -1,29 +1,29 @@
 #define WSIZE	4000
 #define MAXSTR	7000
 #define EMPTY	-1
-#define POSITION 0
-#define IMMEDIATE 1
-#define RELATIVE 2
-#define ADD	1
-#define MULT	2
-#define	IN	3
-#define OUT	4
-#define JT	5
-#define JF	6
-#define LT	7
-#define EQ	8
-#define ADJRB	9
-#define HALT	99
-#define STOPPED	23
-#define RUNNING 24
-#define ERROP	25
-#define ERRMEM	26
-#define ERRMODE	27
-#define ERRIN	28
-#define ERRFILE	-1
-#define DEBUG	0
 
 #define RUNNINGP if( IM.state != RUNNING ) { return; }
+
+enum
+{
+	/* Addressing modes */
+	POSITION = 0, IMMEDIATE, RELATIVE
+};
+
+enum
+{
+	/* The instruction set */
+	ADD = 1, MULT, IN, OUT, JT, JF, LT, EQ, ADJRB,
+	HALT = 99
+};
+
+enum
+{
+	/* Program States */
+	STOPPED = 23, RUNNING, ERROP, ERRMEM, ERRMODE, ERRIN,
+	ERRFILE = -1,
+	DEBUG = 0
+};
 
 struct Intcode_machine {
 	int ip;

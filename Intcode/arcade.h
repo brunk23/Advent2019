@@ -1,22 +1,25 @@
-#define ESPOT	0
-#define WALL	1
-#define BLOCK	2
-#define HPAD	3
-#define BALL	4
-#define WX	0
-#define WY	1
-#define WV	2
+enum
+{
+	/* Meaning of spot */
+	ESPOT = 0, WALL, BLOCK, HPAD, BALL
+};
 
-typedef struct Screen Screen;
+enum
+{
+	/* OUTPUT STATES */
+	WX, WY, WV
+};
+
+typedef struct AScreen AScreen;
 typedef struct Arcade Arcade;
 
-struct Screen {
+struct AScreen {
 	int x_min;
 	int x_max;
 	int y_min;
 	int y_max;
 	int *view;
-} screen;
+} ascreen;
 
 struct Arcade {
 	int state;
@@ -26,11 +29,11 @@ struct Arcade {
 	int pad;
 } arcade;
 
-void init_screen(void);
-void resize_screen(int, int, int, int);
+void init_ascreen(void);
+void resize_ascreen(int, int, int, int);
 int *find_loc(int, int);
 int get_val(int, int);
 void put_val(int, int, int);
 vlong arcade_read(void);
-void print_screen(void);
+void print_ascreen(void);
 int count_blocks(void);
