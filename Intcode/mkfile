@@ -29,6 +29,7 @@ Icode-robot-io.6: Icode-robot-io.c machine.h robot.h
 	6c Icode-robot-io.c
 
 Icode-arcade-io.6: Icode-arcade-io.c machine.h arcade.h
+	6c Icode-arcade-io.c
 
 clean:
 	rm *.6

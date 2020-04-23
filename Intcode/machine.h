@@ -1,5 +1,5 @@
-#define WSIZE	2000
-#define MAXSTR	4000
+#define WSIZE	4000
+#define MAXSTR	7000
 #define EMPTY	-1
 #define POSITION 0
 #define IMMEDIATE 1

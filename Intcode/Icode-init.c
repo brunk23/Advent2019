@@ -46,8 +46,13 @@ vlong populate(void) {
 	vlong numbersRead = 0, value = 0;
 	int sign = 0;
 	long maxlen = 0, i, j;
-	char str[MAXSTR];
+	char *str = malloc(MAXSTR * sizeof(char));
 	FILE *fp;
+
+	if( !str ) {
+		print("Can't get room for string reading\n");
+		return ERRFILE;
+	}
 
 	fp = fopen("input", "r");
 
@@ -83,6 +88,7 @@ vlong populate(void) {
 		}
 	}
 	fclose(fp);
+	free(str);
 	return numbersRead;
 }
 
