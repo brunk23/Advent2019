@@ -4,8 +4,14 @@ icode: Icode-init.6 Icode-op.6 Icode-main.6 Icode-io.6
 robot: Icode-init.6 Icode-op.6 Icode-robot.6 Icode-robot-io.6
 	6l -o robot Icode-init.6 Icode-op.6 Icode-robot.6 Icode-robot-io.6
 
+arcade: Icode-init.6 Icode-op.6 Icode-arcade.6 Icode-arcade-io.6
+	6l -o arcade Icode-init.6 Icode-op.6 Icode-arcade.6 Icode-arcade-io.6
+
 Icode-robot.6: Icode-robot.c machine.h robot.h
 	6c Icode-robot.c
+
+Icode-arcade.6: Icode-arcade.c machine.h arcade.h
+	6c Icode-arcade.c
 
 Icode-init.6: Icode-init.c machine.h
 	6c Icode-init.c
@@ -22,8 +28,15 @@ Icode-io.6: Icode-io.c machine.h
 Icode-robot-io.6: Icode-robot-io.c machine.h robot.h
 	6c Icode-robot-io.c
 
+Icode-arcade-io.6: Icode-arcade-io.c machine.h arcade.h
+
 clean:
 	rm *.6
+
+clean-all: clean
+	rm arcade
+	rm robot
+	rm icode
 
 commit:
 	git/commit *[ch] mkfile
