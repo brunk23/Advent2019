@@ -19,7 +19,8 @@ void permute(int *a, int start, int end);
 void trial( int *a );
 
 void
-main(int argc, char *argv[]) {
+main(int argc, char *argv[])
+{
 	int i;
 	int phase[5] = { 4, 3, 2, 1, 0 };
 
@@ -53,7 +54,9 @@ main(int argc, char *argv[]) {
 	exits(0);
 }
 
-void trial(int *a) {
+void
+trial(int *a)
+{
 	int i;
 
 	iotable[ signal ] = 0;
@@ -83,7 +86,9 @@ void trial(int *a) {
 /*
  * A helper function to reset the memory
  */
-void copymem(vlong *from, vlong *to) {
+void
+copymem(vlong *from, vlong *to)
+{
 	int i;
 
 	for( i = 0; i < WSIZE; i++ ) {
@@ -94,13 +99,17 @@ void copymem(vlong *from, vlong *to) {
 /*
  * Helper function for swapping the array.
  */
-void swapints(int *from, int *to) {
+void
+swapints(int *from, int *to)
+{
 	int tmp = *to;
 	*to = *from;
 	*from = tmp;
 }
 
-void permute(int *a, int start, int end) {
+void
+permute(int *a, int start, int end)
+{
 	int i;
 
 	if( start == end ) {
@@ -115,7 +124,9 @@ void permute(int *a, int start, int end) {
 	}
 }
 
-void icm_out() {
+void
+icm_out()
+{
 	vlong value = 0;
 
 	value = readmem( M, M->ip + 1 );
@@ -126,7 +137,9 @@ void icm_out() {
 	M->ip += 2;
 }
 
-void icm_in() {
+void
+icm_in()
+{
 	vlong value = 0;
 
 	writemem( M, M->ip + 1, iotable[ iotable[ signalp ] + 1 ] );
