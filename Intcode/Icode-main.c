@@ -16,12 +16,9 @@ int main(int argc, char *argv[]) {
 		step();
 	}
 
-	if( IM.state != STOPPED ) {
+	if( IM.state != STOPPED || DEBUG ) {
 		print_mem();
 		print("\n\n");
-	}
-
-	if( DEBUG ) {
 		print("\n\n\tIP: %d\n\tState: %s\n\tMem[0]: %lld\n",
 			IM.ip, print_state(), IM.mem[0][0]);
 

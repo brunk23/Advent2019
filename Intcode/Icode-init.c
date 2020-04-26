@@ -32,6 +32,9 @@ int print_mem() {
 	int i = 0;
 
 	for( i = 0; i < WSIZE; i++ ) {
+		if( IM.mem[i][0] == EMPTY ) {
+			break;
+		}
 		print("%lld: %lld\n", IM.mem[i][0], IM.mem[i][1]);
 	}
 
