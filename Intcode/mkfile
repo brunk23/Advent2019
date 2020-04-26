@@ -1,11 +1,17 @@
 icode: Icode-init.6 Icode-op.6 Icode-main.6 Icode-io.6
 	6l -o icode Icode-init.6 Icode-op.6 Icode-io.6 Icode-main.6
 
+amp: Icode-init.6 Icode-op.6 Icode-amp.6
+	6l -o amp Icode-init.6 Icode-op.6 Icode-amp.6
+
 robot: Icode-init.6 Icode-op.6 Icode-robot.6 Icode-robot-io.6
 	6l -o robot Icode-init.6 Icode-op.6 Icode-robot.6 Icode-robot-io.6
 
 arcade: Icode-init.6 Icode-op.6 Icode-arcade.6 Icode-arcade-io.6
 	6l -o arcade Icode-init.6 Icode-op.6 Icode-arcade.6 Icode-arcade-io.6
+
+Icode-amp.6: Icode-amp.c machine.h
+	6c Icode-amp.c
 
 Icode-robot.6: Icode-robot.c machine.h robot.h
 	6c Icode-robot.c

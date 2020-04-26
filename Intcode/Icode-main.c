@@ -2,23 +2,29 @@
 #include <libc.h>
 #include "machine.h"
 
-void main(int argc, char *argv[]) {
-	init();
+void
+main(int argc, char *argv[]) {
+	Intcode *M = nil;
 
-	populate();
-
-	IM.state = RUNNING;
-	while( IM.state == RUNNING ) {
-		step();
+	if( !( M = malloc( sizeof(Intcode) ) ) ) {
+		exits("Can't create machine.");
 	}
 
-	if( IM.state != STOPPED || DEBUG ) {
-		print_mem();
+	init(M);
+	populate(M);
+
+	M->state = RUNNING;
+	while( M->state == RUNNING ) {
+		step(M);
+	}
+
+	if( M->state != STOPPED || DEBUG ) {
+		print_mem(M);
 		print("\n\n");
 		print("\n\n\tIP: %d\n\tState: %s\n\tMem[0]: %lld\n",
-			IM.ip, print_state(), IM.mem[0]);
+			M->ip, print_state(M), M->mem[0]);
 
-		print("\tHighest Address Used: %ld\n", IM.highest);
+		print("\tHighest Address Used: %ld\n", M->highest);
 	}
 	exits(0);
 }

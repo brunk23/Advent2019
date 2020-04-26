@@ -2,7 +2,9 @@
 #define MAXSTR	7000
 #define EMPTY	-1
 
-#define RUNNINGP if( IM.state != RUNNING ) { return; }
+#define RUNNINGP if( M->state != RUNNING ) { return; }
+
+typedef struct Intcode Intcode;
 
 enum
 {
@@ -25,7 +27,7 @@ enum
 	DEBUG = 0
 };
 
-struct Intcode_machine {
+struct Intcode {
 	int ip;
 	long base;
 	int inst;
@@ -33,28 +35,28 @@ struct Intcode_machine {
 	int state;
 	int highest;
 	vlong mem[WSIZE];
-} IM;
+};
 
 /* Functions in Icode-init.c */
-int print_mem(void);
-int populate(void);
-int init(void);
+void print_mem(Intcode *);
+void populate(Intcode *);
+void init(Intcode *);
 int valid(int);
-char *print_state(void);
+char *print_state(Intcode *);
 
 /* Functions in Icode-op.c */
-void step(void);
-void icm_add(void);
-void icm_mult(void);
-void icm_halt(void);
-void icm_jt(void);
-void icm_jf(void);
-void icm_lt(void);
-void icm_eq(void);
-void icm_adjrb(void);
-vlong readmem(int);
-void writemem(int, vlong);
+void step(Intcode *);
+void icm_add(Intcode *);
+void icm_mult(Intcode *);
+void icm_halt(Intcode *);
+void icm_jt(Intcode *);
+void icm_jf(Intcode *);
+void icm_lt(Intcode *);
+void icm_eq(Intcode *);
+void icm_adjrb(Intcode *);
+vlong readmem(Intcode *, int);
+void writemem(Intcode *,int, vlong);
 
 /* In specialized io file for project */
-void icm_in(void);
-void icm_out(void);
+void icm_in(Intcode *);
+void icm_out(Intcode *);

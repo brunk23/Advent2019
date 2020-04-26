@@ -3,27 +3,29 @@
 #include <stdio.h>
 #include "machine.h"
 
-void icm_out() {
+void
+icm_out(Intcode *M) {
 	vlong value = 0;
 
-	value = readmem( IM.ip + 1 );
+	value = readmem( M, M->ip + 1 );
 	RUNNINGP;
 
 	print("%lld\n", value);
 
-	IM.ip += 2;
+	M->ip += 2;
 }
 
-void icm_in() {
+void
+icm_in(Intcode *M) {
 	vlong value = 0;
 
 	if( EOF == scanf("%d", &value) ) {
-		IM.state = ERRIN;
+		M->state = ERRIN;
 		return;
 	}
 
-	writemem( IM.ip + 1, value );
+	writemem( M, M->ip + 1, value );
 	RUNNINGP;
 
-	IM.ip += 2;
+	M->ip += 2;
 }
