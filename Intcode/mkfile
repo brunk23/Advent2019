@@ -31,6 +31,12 @@ Icode-robot-io.6: Icode-robot-io.c machine.h robot.h
 Icode-arcade-io.6: Icode-arcade-io.c machine.h arcade.h
 	6c Icode-arcade-io.c
 
+Icode-disass.6: Icode-disass.c machine.h
+	6c Icode-disass.c
+
+disassem: Icode-disass.6 Icode-init.6
+	6l -o disassem Icode-disass.6 Icode-init.6
+
 clean:
 	rm *.6
 

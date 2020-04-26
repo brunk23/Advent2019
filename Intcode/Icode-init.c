@@ -53,14 +53,13 @@ vlong populate(void) {
 	FILE *fp;
 
 	if( !str ) {
-		print("Can't get room for string reading\n");
-		return ERRFILE;
+		exits("Can't get room for string reading");
 	}
 
 	fp = fopen("input", "r");
 
 	if( !fp ) {
-		return ERRFILE;
+		exits("Can't open file 'input' for reading");
 	}
 
 	while( EOF != ( fscanf(fp, "%s,", str ) ) ) {
