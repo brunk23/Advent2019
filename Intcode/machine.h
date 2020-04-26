@@ -31,15 +31,15 @@ struct Intcode_machine {
 	int inst;
 	int mode;
 	int state;
-	vlong mem[WSIZE][2];
+	int highest;
+	vlong mem[WSIZE];
 } IM;
 
 /* Functions in Icode-init.c */
 int print_mem(void);
-vlong populate(void);
+int populate(void);
 int init(void);
-vlong *valid(vlong);
-void addpair(vlong, vlong);
+int valid(int);
 char *print_state(void);
 
 /* Functions in Icode-op.c */
@@ -52,8 +52,8 @@ void icm_jf(void);
 void icm_lt(void);
 void icm_eq(void);
 void icm_adjrb(void);
-vlong readmem(long);
-void writemem(long, vlong);
+vlong readmem(int);
+void writemem(int, vlong);
 
 /* In specialized io file for project */
 void icm_in(void);

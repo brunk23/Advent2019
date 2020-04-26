@@ -13,14 +13,14 @@ int init(void) {
 	 * Clear the address table, set all cells EMPTY
 	 */
 	for( i = 0; i < WSIZE; i++ ) {
-		IM.mem[i][0] = EMPTY;
-		IM.mem[i][1] = 0;
+		IM.mem[i] = 0;
 	}
 
 	IM.ip = 0;
 	IM.inst = 0;
 	IM.mode = 0;
 	IM.base = 0;
+	IM.highest = 0;
 
 	return 0;
 }
@@ -31,11 +31,8 @@ int init(void) {
 int print_mem() {
 	int i = 0;
 
-	for( i = 0; i < WSIZE; i++ ) {
-		if( IM.mem[i][0] == EMPTY ) {
-			break;
-		}
-		print("%lld: %lld\n", IM.mem[i][0], IM.mem[i][1]);
+	for( i = 0; i < IM.highest; i++ ) {
+		print("%04d: %lld\n", i, IM.mem[i]);
 	}
 
 	return 0;
@@ -45,9 +42,9 @@ int print_mem() {
  * Will read input in form: 1,2,3,4,5,6,0,32,2 ... and put it into memory
  * Returns number of integers read
  */
-vlong populate(void) {
-	vlong numbersRead = 0, value = 0;
-	int sign = 0;
+int populate(void) {
+	vlong value = 0;
+	int sign = 0, numbersRead = 0;
 	long maxlen = 0, i, j;
 	char *str = malloc(MAXSTR * sizeof(char));
 	FILE *fp;
@@ -80,8 +77,7 @@ vlong populate(void) {
 				value += str[j] - '0';
 			}
 			value *= sign;
-			IM.mem[ numbersRead ][0] = numbersRead;
-			IM.mem[ numbersRead ][1] = value;
+			IM.mem[ numbersRead ] = value;
 			numbersRead++;
 			if( numbersRead == WSIZE ) {
 				exits("Out of memory during populate!");
@@ -90,47 +86,21 @@ vlong populate(void) {
 	}
 	fclose(fp);
 	free(str);
+	IM.highest = numbersRead;
 	return numbersRead;
 }
 
 /*
- * Returns pointer to data if address is valid, and NULL if not.
+ * Returns 1 address is valid, and 0 if not.
  */
-vlong *valid(vlong addr) {
+int valid(int addr) {
 	int i = 0;
 
-	if( addr < 0 ) {
-		return NULL;
+	if( addr < 0 || addr >= WSIZE ) {
+		return 0;
 	}
 
-	for( i = 0; i < WSIZE; i++ ) {
-		if( IM.mem[i][0] == addr ) {
-			return &IM.mem[i][1];
-		}
-		if( IM.mem[i][0] == EMPTY ) {
-			break;
-		}
-	}
-	return NULL;
-}
-
-void addpair( vlong addr, vlong value ) {
-	int i = 0;
-
-	for( i = 0; i < WSIZE; i++ ) {
-		if( IM.mem[i][0] == addr ) {
-			/* This should never happen */
-			IM.mem[i][1] = value;
-			return;
-		}
-		if( IM.mem[i][0] == EMPTY ) {
-			IM.mem[i][0] = addr;
-			IM.mem[i][1] = value;
-			return;
-		}
-	}
-	print("Out of memory in addpair\n");
-	IM.state = ERRMEM;
+	return 1;
 }
 
 char *print_state() {

@@ -6,8 +6,8 @@
 void step(void) {
 	vlong value, *curr;
 
-	if( curr=valid( IM.ip ) ) {
-		value = *curr;
+	if( valid( IM.ip ) ) {
+		value = IM.mem[ IM.ip ];
 	} else {
 		print("\nError setting IM.ip to %ld\n", IM.ip);
 		IM.state = ERRMEM;
@@ -189,41 +189,40 @@ void icm_mult() {
  * Returns: value
  * Warning: changes IM.mode
  */
-vlong readmem(long addr) {
-	vlong *curr = NULL;
+vlong readmem(int addr) {
 	vlong value = 0;
 	long reladdr = 0;
 
 	switch( IM.mode%10 ) {
 		case POSITION:
-			if( (curr=valid(addr)) ) {
-				value = *curr;
-				if( (curr=valid(value)) ) {
-					value = *curr;
+			if( valid(addr) ) {
+				value = IM.mem[ addr ];
+				if( valid(value) ) {
+					value = IM.mem[ value ];
 				} else {
-					value = 0;
+					IM.state = ERRMEM;
 				}
 			} else {
-				value = 0;
+				IM.state = ERRMEM;
 			}
 			break;
 		case RELATIVE:
-			if( (curr=valid(addr)) ) {
-				reladdr = *curr + IM.base;
+			if( (valid(addr)) ) {
+				reladdr = IM.mem[ addr ] + IM.base;
 			} else {
 				reladdr = IM.base;
 			}
-			if( (curr=valid(reladdr)) ) {
-				value = *curr;
+			if( valid(reladdr) ) {
+				value = IM.mem[ reladdr ];
 			} else {
-				value = 0;
+				IM.state = ERRMEM;
 			}
 			break;
 		case IMMEDIATE:
-			if( (curr=valid(addr)) ) {
-				value = *curr;
+			if( valid(addr) ) {
+				value = IM.mem[ addr ];
 			} else {
-				value = 0;
+				IM.state = ERRMEM;
 			}
 			break;
 		default:
@@ -235,38 +234,43 @@ vlong readmem(long addr) {
 	return value;
 }
 
-void writemem(long addr, vlong value) {
-	vlong *curr = NULL;
+void writemem(int addr, vlong value) {
 	long reladdr = 0;
 
 	switch( IM.mode%10 ) {
 		case POSITION:
-			if( (curr=valid( addr )) ) {
-				reladdr = *curr;
+			if( valid( addr ) ) {
+				reladdr = IM.mem[ addr ];
 			} else {
-				reladdr = 0;
+				IM.state = ERRMEM;
 			}
-			if( (curr=valid( reladdr )) ) {
-				*curr = value;
+			if( valid( reladdr ) ) {
+				IM.mem[ reladdr ] = value;
 			} else {
-				addpair( reladdr, value);
+				IM.state = ERRMEM;
 			}
 			break;
 		case RELATIVE:
-			if( (curr=valid( addr )) ) {
-				reladdr = *curr + IM.base;
+			if( valid( addr ) ) {
+				reladdr = IM.mem[ addr ] + IM.base;
 			} else {
-				reladdr = IM.base;
+				IM.state = ERRMEM;
 			}
-			if( (curr=valid( reladdr )) ) {
-				*curr = value;
+			if( valid( reladdr ) ) {
+				IM.mem[ reladdr ] = value;
 			} else {
-				addpair( reladdr, value );
+				IM.state = ERRMEM;
 			}
 			break;
 		case IMMEDIATE:   /* Fall through, immediate mode invalid */
 		default:
 			IM.state = ERRMODE;
+	}
+	if( addr > IM.highest ) {
+		IM.highest = addr;
+	}
+	if( reladdr > IM.highest ) {
+		IM.highest = reladdr;
 	}
 	IM.mode /= 10;
 }

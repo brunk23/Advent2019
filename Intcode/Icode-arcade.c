@@ -19,7 +19,7 @@ main(int argc, char *argv[])
 	}
 
 	IM.state = RUNNING;
-	IM.mem[0][1] = 2;
+	IM.mem[0] = 2;
 	while( IM.state == RUNNING ) {
 		step();
 	}

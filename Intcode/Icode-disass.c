@@ -34,55 +34,81 @@ dis_step()
 	int n = 0;
 	char *s = nil;
 
-	if( IM.mem[ IM.ip ][0] == -1 ) {
+	if( IM.ip > IM.highest ) {
 		IM.state = STOPPED;
 		return;
 	}
 	
-	IM.inst = IM.mem[ IM.ip ][1] % 100;
-	IM.mode = IM.mem[ IM.ip ][1] / 100;
+	IM.inst = IM.mem[ IM.ip ] % 100;
+	IM.mode = IM.mem[ IM.ip ] / 100;
 
+	print("%d:\t", IM.ip);
+	IM.ip++;
 	switch( IM.inst ) {
 		case HALT:
-			n = 0;
-			s = opwords[0];
+			print("halt");
 			break;
 		case ADD:
+			one();
+			print(" + ");
+			one();
+			print(" -> ");
+			one();
+			break;
 		case MULT:
+			one();
+			print(" * ");
+			one();
+			print(" -> ");
+			one();
+			break;
 		case LT:
+			one();
+			print(" < ");
+			one();
+			print(" -> ");
+			one();
+			break;
 		case EQ:
-			n = 3;
-			s = opwords[ IM.inst ];
+			one();
+			print(" == ");
+			one();
+			print(" -> ");
+			one();
 			break;
 		case JT:
+			print("if\t");
+			one();
+			print("\tgoto\t");
+			one();
+			break;
 		case JF:
-			n = 2;
-			s= opwords[ IM.inst ];
+			print("ifnot\t");
+			one();
+			print("\tgoto\t");
+			one();
 			break;
 		case OUT:
+			print("output from <- ");
+			one();
+			break;
 		case IN:
+			print("input to -> ");
+			one();
+			break;
 		case ADJRB:
-			n = 1;
-			s = opwords[ IM.inst ];
+			print("base + ");
+			one();
+			print(" -> base");
 			break;
 		default:
-			print("%d:\tDATA    ", IM.ip++);
-			s = 0;
-			IM.mode = 1;
-			one();
+			print("DATA    $%lld", IM.mem[ IM.ip -1 ] );
 			break;
-	}
-	if( s ) {
-		print("%d:\t%s", IM.ip++, s);
-		for( ; n; n-- ) {
-			one();
-		}
 	}
 	print("\n");
 }
 
 void one() {
-	print("\t");
 	switch( IM.mode % 10 ) {
 		case 0:
 			print("@");
@@ -94,10 +120,10 @@ void one() {
 			print("#");
 			break;
 		default:
-			print("??-");
+			print("(%d)", IM.mode % 10);
 			break;
 	}
-	print("%lld", IM.mem[ IM.ip ][1] );
+	print("%lld", IM.mem[ IM.ip ] );
 	IM.ip++;
 	IM.mode /= 10;
 }
