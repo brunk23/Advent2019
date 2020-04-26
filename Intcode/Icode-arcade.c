@@ -12,6 +12,7 @@ main(int argc, char *argv[])
 	init_ascreen();
 	arcade.ball = 0;
 	arcade.pad = 0;
+	arcade.score = 0;
 
 	if( populate() == ERRFILE ) {
 		exits("Could not open file 'input' for reading.\n");
@@ -23,6 +24,7 @@ main(int argc, char *argv[])
 		step();
 	}
 
+	print("High Score: %d\n",arcade.score);
 	if( ascreen.view ) {
 		free( ascreen.view );
 	}

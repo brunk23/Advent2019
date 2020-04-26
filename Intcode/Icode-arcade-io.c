@@ -141,34 +141,31 @@ int *find_loc(int x, int y) {
 }
 
 void put_val(int x, int y, int v) {
-	char *wall = "#", *block = "X", *empty = " ", *ball = "*", *hpad = "-", *d = nil;
 	Rectangle r;
 
+	r.min.x = 20 * x + screen->r.min.x;
+	r.min.y = 10 * y + screen->r.min.y;
+	r.max.x = r.min.x + 20;
+	r.max.y = r.min.y + 10;
+	draw(screen, r, display->white, 0 , (Point){0,0});
 	switch( v ) {
 		case BALL:
-			d = ball;
+			draw(screen, r, display->black, 0 , (Point){0,0});
 			break;
 		case HPAD:
-			d = hpad;
+			draw(screen, r, display->black, 0 , (Point){0,0});
 			break;
 		case ESPOT:
-			d = empty;
 			break;
 		case BLOCK:
-			d = block;
+			draw(screen, r, display->black, 0 , (Point){0,0});
 			break;
 		case WALL:
-			d = wall;
+			draw(screen, r, display->black, 0 , (Point){0,0});
 			break;
 		default:
 			break;
 	}
-	r.min.x = 10 * x + screen->r.min.x;
-	r.min.y = 16 * y + screen->r.min.y;
-	r.max.x = r.min.x + 10;
-	r.max.y = r.min.y + 16;
-	draw(screen, r, display->white, 0 , (Point){0,0});
-	string(screen, r.min, display->black, (Point){0,0},	display->defaultfont, d);
 	flushimage(display,0);
 	sleep(2);
 	int *loc = find_loc(x, y);
@@ -199,12 +196,13 @@ void icm_out() {
 		case WV:
 			if( arcade.x == -1 && arcade.y == 0) {
 				r.min.x = 8 + screen->r.min.x;
-				r.min.y = 21 * 16 + screen->r.min.y;
+				r.min.y = 21 * 10 + screen->r.min.y;
 				r.max.x = screen->r.max.x;
 				r.max.y = r.min.y + 20;
 				draw( screen, r, display->white, 0, (Point){0,0});
 				string(screen, r.min, display->black, (Point){0,0},
 					display->defaultfont, smprint("Score: %d", value));
+				arcade.score = value;
 				flushimage(display,0);
 			} else {
 				if( value == BALL ) {

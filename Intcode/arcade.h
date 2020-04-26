@@ -27,6 +27,7 @@ struct Arcade {
 	int y;
 	int ball;
 	int pad;
+	int score;
 } arcade;
 
 void init_ascreen(void);
