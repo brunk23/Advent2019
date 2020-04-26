@@ -50,11 +50,13 @@ icm_in(Intcode *M) {
 	M->ip += 2;
 }
 
-vlong robot_read() {
+vlong
+robot_read() {
 	return robot.val;
 }
 
-void robot_move(void) {
+void
+robot_move() {
 	long i;
 	switch( robot.direction ) {
 		case UP:

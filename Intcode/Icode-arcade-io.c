@@ -6,7 +6,8 @@
 #include "machine.h"
 #include "arcade.h"
 
-void init_ascreen() {
+void
+init_ascreen() {
 	int i;
 
 	i = initdraw(nil, nil, "Arcade Game");
@@ -21,7 +22,8 @@ void init_ascreen() {
 	resize_ascreen( 0, 0, 39, 20 );
 }
 
-int count_blocks() {
+int
+count_blocks() {
 	int x = 0, count = 0, size = 0;
 
 	size = (ascreen.x_max - ascreen.x_min + 1) * (ascreen.y_max - ascreen.y_min + 1);
@@ -34,7 +36,8 @@ int count_blocks() {
 	return count;
 }
 
-void print_ascreen() {
+void
+print_ascreen() {
 	int x, y, v, fact;
 	char c = ' ';
 
@@ -70,7 +73,8 @@ void print_ascreen() {
 	}
 }
 
-void resize_ascreen( int xmin, int ymin, int xmax, int ymax) {
+void
+resize_ascreen( int xmin, int ymin, int xmax, int ymax) {
 	int *newview = NULL;
 	int x, y;
 	int old_x_min = ascreen.x_min, old_y_min = ascreen.y_min;
@@ -108,7 +112,8 @@ void resize_ascreen( int xmin, int ymin, int xmax, int ymax) {
 	ascreen.view = newview;
 }
 
-int *find_loc(int x, int y) {
+int *
+find_loc(int x, int y) {
 	int xmin, ymin, xmax, ymax, resize = 0;
 	if( x < ascreen.x_min ) {
 		xmin = x;
@@ -140,7 +145,8 @@ int *find_loc(int x, int y) {
 	return &ascreen.view[ (y - ymin) * (xmax - xmin + 1) + (x - xmin) ];
 }
 
-void put_val(int x, int y, int v) {
+void
+put_val(int x, int y, int v) {
 	Rectangle r;
 
 	r.min.x = 20 * x + screen->r.min.x;
@@ -172,16 +178,18 @@ void put_val(int x, int y, int v) {
 	*loc = v;
 }
 
-int get_val(int x, int y ) {
+int
+get_val(int x, int y ) {
 	int *loc = find_loc(x, y);
 	return *loc;
 }
 
-void icm_out() {
+void
+icm_out(Intcode *M) {
 	vlong value = 0;
 	Rectangle r;
 
-	value = readmem( IM.ip + 1 );
+	value = readmem( M, M->ip + 1 );
 	RUNNINGP;
 
 	switch( arcade.state ) {
@@ -219,14 +227,14 @@ void icm_out() {
 			print("Bad state\n");
 	}
 
-	IM.ip += 2;
+	M->ip += 2;
 }
 
-void icm_in() {
-	writemem( IM.ip + 1, arcade_read() );
+void icm_in(Intcode *M) {
+	writemem( M, M->ip + 1, arcade_read() );
 	RUNNINGP;
 
-	IM.ip += 2;
+	M->ip += 2;
 }
 
 vlong arcade_read() {
