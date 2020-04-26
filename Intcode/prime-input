@@ -1,0 +1,32 @@
+read a			3,a			[2]	# read the number
+CHECK:
+lt   a, $2, TEST 	1007,a,2,TEST		[6]	# make sure it is 2 or higher
+jt   TEST, $END		1005,TEST,END		[9]
+CHECKF:
+add  $1, $0, MULT	1101,1,0,TEST		[13]	# set the mult to 1
+LOOP:
+mult MULT FACT PROD	2,MULT,FACT,PROD		[17]	# get the current product
+eq   PROD, a, TEST	8,PROD,a,TEST		[21]	# see if it's equal
+jt   TEST,$HIT		1005,TEST,HIT		[24]	# If it is, print it and store new a
+lt   a, PROD, TEST	7,a,PROD,TEST		[28]	# is the product too big?
+jt   TEST,$OVER		1005,TEST,38		[31]
+add  $1, MULT, MULT	101,1,MULT,MULT		[35]
+jt   $1, $13		1105,1,13		[38]
+OVER:
+eq   FACT,$2,TEST	108,2,FACT,TEST		[42]
+jt   TEST,$ADD1		1005,TEST,49		[45]
+add  $1,FACT,FACT	101,1,FACT,FACT		[49]
+add  $1,FACT,FACT	101,1,FACT,FACT		[53]
+jt   $1,CHECKF		1105,1,9		[56]	
+HIT:
+out  FACT		4,FACT			[58]
+add  MULT, $0,a		1001,MULT,0,a		[62]
+jt   $1,$2		1105,1,2			[65]	# Jumps back to test of a<2 at start
+END:
+halt			99			[66]
+
+FACT		2				[67]	# we set this at the start of each loop
+MULT		0				[68]	# start fact at 2
+PROD		0				[69]	# the current product
+TEST		0				[70]
+a		0				[71]

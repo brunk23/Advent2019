@@ -46,4 +46,4 @@ clean-all: clean
 	rm icode
 
 commit:
-	git/commit *[ch] mkfile
+	git/commit *[ch] mkfile *-input
