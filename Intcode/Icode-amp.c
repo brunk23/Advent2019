@@ -2,16 +2,25 @@
 #include <libc.h>
 #include "machine.h"
 
-enum
-{
-	signalp = 0, phaseset, signal, output
+typedef struct iobuff iobuff;
+
+struct iobuff {
+	vlong	inp;
+	int	status;
 };
 
+enum
+{
+	aread, unread
+};
+
+
 vlong omem[ WSIZE ];
-int iotable[ 4 ];
+iobuff iotable[ 5 ];
 int maxsignal;
 int bytes;
-Intcode *M;
+int who;
+Intcode *M[5];
 
 void copymem(vlong *from, vlong *to);
 void swapints(int *from, int *to);
@@ -22,33 +31,27 @@ void
 main(int argc, char *argv[])
 {
 	int i;
-	int phase[5] = { 4, 3, 2, 1, 0 };
+	int phase[5] = { 5, 6, 7, 8, 9 };
 
-	if( !( M = malloc( sizeof(Intcode) ) ) ) {
-		exits("Could not create machine.");
+	for( i = 0; i < 5; i++ ) {
+		if( !( M[i] = malloc( sizeof(Intcode) ) ) ) {
+			exits("Could not create machine.");
+		}
 	}
 
 	/*
 	 * Get the initial state for the machine and save the memory
 	 * so we don't need to reread the file from disk.
 	 */
-	init(M);
-	populate(M);
-	bytes = M->highest;
-	copymem( M->mem, omem );
+	init(M[0]);
+	populate(M[0]);
+	bytes = M[0]->highest;
+	copymem( M[0]->mem, omem );
 
 	maxsignal = 0;
+	who = 0;
 
 	permute( phase, 0, 4 );
-
-	if( M->state != STOPPED || DEBUG ) {
-		print_mem(M);
-		print("\n\n");
-		print("\n\n\tIP: %d\n\tState: %s\n\tMem[0]: %lld\n",
-			M->ip, print_state(M), M->mem[0]);
-
-		print("\tHighest Address Used: %ld\n", M->highest);
-	}
 
 	print("Max signal: %lld\n", maxsignal);
 	exits(0);
@@ -57,24 +60,31 @@ main(int argc, char *argv[])
 void
 trial(int *a)
 {
-	int i;
-
-	iotable[ signal ] = 0;
+	int i, j, running;
 
 	for( i = 0; i < 5; i++ ) {
-		iotable[ signalp ] = 0;
-		iotable[ phaseset ] = a[ i ];
-		init(M);
-		copymem( omem, M->mem );
-		M->state = RUNNING;
-		while( M->state == RUNNING ) {
-			step(M);
+		for( j = 0; j < 5; j++ ) {
+			init(M[j]);
+			copymem( omem, M[j]->mem );
+			M[j]->state = RUNNING;
+			iotable[j].inp = a[j];
+			iotable[j].status = unread;
 		}
-		iotable[ signal ] = iotable[ output ];
+		running = RUNNING;
+		while( running == RUNNING ) {
+			running = STOPPED;
+			for( j = 0; j < 5; j++ ) {
+				if( M[j]->state == RUNNING ) {
+					who = j;
+					running = RUNNING;
+					step(M[j]);
+				}
+			}
+		}
 	}
 
-	if( iotable[ output ] > maxsignal ) {
-		maxsignal = iotable[ output ];
+	if( iotable[ 0 ].inp > maxsignal ) {
+		maxsignal = iotable[ 0 ].inp;
 
 		for( i = 0; i < 5; i++ ) {
 			print("%d ", a[i]);
@@ -125,26 +135,45 @@ permute(int *a, int start, int end)
 }
 
 void
-icm_out()
+icm_out(Intcode *M)
 {
 	vlong value = 0;
+
+	/*
+	 * We can't output, the other program hasn't read the last input.
+	 */
+	if( iotable[ (who+1)%5 ].status == unread ) {
+		print("Out blocked\n");
+		return;
+	}
 
 	value = readmem( M, M->ip + 1 );
 	RUNNINGP;
 
-	iotable[ output ] = value;
+	iotable[ (who+1)%5 ].inp = value;
+	iotable[ (who+1)%5 ].status = unread;
 
 	M->ip += 2;
 }
 
 void
-icm_in()
+icm_in(Intcode *M)
 {
 	vlong value = 0;
 
-	writemem( M, M->ip + 1, iotable[ iotable[ signalp ] + 1 ] );
+	if( iotable[ who ].status == aread ) {
+		return;
+	}
+
+	writemem( M, M->ip + 1, iotable[ who ].inp );
+	iotable[who].status = aread;
 	RUNNINGP;
 
-	iotable[ signalp ]++;
+	if( !who && M->highest != (WSIZE - 1) ) {
+		iotable[who].status = unread;
+		iotable[who].inp = 0;
+		M->highest = WSIZE - 1;
+	}
+
 	M->ip += 2;
 }
