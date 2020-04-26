@@ -4,10 +4,11 @@
 #include "machine.h"
 #include "robot.h"
 
-void icm_out() {
+void
+icm_out(Intcode *M) {
 	vlong value = 0;
 
-	value = readmem( IM.ip + 1 );
+	value = readmem( M, M->ip + 1 );
 	RUNNINGP;
 
 	switch( robot.state ) {
@@ -38,14 +39,15 @@ void icm_out() {
 			print("Bad state\n");
 	}
 
-	IM.ip += 2;
+	M->ip += 2;
 }
 
-void icm_in() {
-	writemem( IM.ip + 1, robot_read() );
+void
+icm_in(Intcode *M) {
+	writemem( M, M->ip + 1, robot_read() );
 	RUNNINGP;
 
-	IM.ip += 2;
+	M->ip += 2;
 }
 
 vlong robot_read() {

@@ -5,6 +5,11 @@
 
 int main(int argc, char *argv[]) {
 	long max = 0, len = 0, x, y;
+	Intcode *M = nil;
+
+	if( !( M = malloc( sizeof(Intcode) ) ) ) {
+		exits("Could not create machine.");
+	}
 
 	robot.direction = UP;
 	robot.state = PAINT;
@@ -26,20 +31,16 @@ int main(int argc, char *argv[]) {
 
 	hull[0].val = WHITE;
 
-	init();
+	init(M);
+	populate(M);
 
-	if( populate() == ERRFILE ) {
-		print("Could not open file 'input' for reading.\n");
-		return 1;
+	M->state = RUNNING;
+	while( M->state == RUNNING ) {
+		step(M);
 	}
 
-	IM.state = RUNNING;
-	while( IM.state == RUNNING ) {
-		step();
-	}
-
-	if( IM.state != STOPPED ) {
-		print_mem();
+	if( M->state != STOPPED ) {
+		print_mem(M);
 		print("\n\n");
 	}
 
@@ -81,9 +82,9 @@ int main(int argc, char *argv[]) {
 
 	if( DEBUG ) {
 		print("\n\n\tIP: %d\n\tState: %s\n\tMem[0]: %lld\n",
-			IM.ip, print_state(), IM.mem[0]);
+			M->ip, print_state(M), M->mem[0]);
 
-		print("\tMax Address: %ld\n", IM.highest);
+		print("\tMax Address: %ld\n", M->highest);
 	}
 	return 0;
 }
