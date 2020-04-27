@@ -17,6 +17,7 @@ struct Inst {
 	int value;
 	int x;
 	int y;
+	int dist;
 	int wire;
 } itoken;
 
@@ -24,6 +25,7 @@ struct Spot {
 	int x;
 	int y;
 	int wire[2];
+	int dist[2];
 	Spot *prev;
 	Spot *next;
 };
@@ -47,10 +49,12 @@ void
 print_intersections()
 {
 	Spot *curr = head;
-	int lowest = 9999999, lowx, lowy;
 	while( curr ) {
 		if( curr->wire[0] && curr->wire[1] ) {
-			print("x: %d  y: %d\n", curr->x, curr->y);
+			print("x: %d  y: %d  Distance: %d\t\t",
+				curr->x, curr->y, abs(curr->x)+abs(curr->y));
+			print("D1: %d  D2: %d  Total: %d\n", curr->dist[0],
+				curr->dist[1], curr->dist[0] + curr->dist[1]);
 		}
 		curr = curr->next;
 	}
@@ -96,6 +100,7 @@ play_itoken()
 	for( i = 0; i < itoken.value; i++ ) {
 		itoken.x += xdir;
 		itoken.y += ydir;
+		itoken.dist++;
 		addwire( itoken.x, itoken.y, itoken.wire );
 	}
 }
@@ -109,6 +114,7 @@ addwire( int x, int y, int wire )
 	tmp->x = x;
 	tmp->y = y;
 	tmp->wire[wire] = 1;
+	tmp->dist[wire] = itoken.dist;
 	Spots_used++;
 
 	/*
@@ -121,6 +127,9 @@ addwire( int x, int y, int wire )
 				 * Found spot, mark wire there, free the tmp we don't need
 				 */
 				curr->wire[wire] = 1;
+				if( !curr->dist[wire] ) {
+					curr->dist[wire] = itoken.dist;
+				}
 				Spots_used--;
 				free(tmp);
 				return;
@@ -230,6 +239,8 @@ empty_spot()
 	s->y = 0;
 	s->wire[0] = 0;
 	s->wire[1] = 0;
+	s->dist[0] = 0;
+	s->dist[1] = 0;
 
 	return s;
 }
@@ -255,6 +266,7 @@ main(int argc, char *argv[])
 	while( EOF != fscanf(fp, "%s", s) ) {
 		length = strlen(s);
 		currbyte = 0;
+		itoken.dist = 0;
 		itoken.x = 0;
 		itoken.y = 0;
 		while( currbyte < length ) {
