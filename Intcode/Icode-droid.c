@@ -14,6 +14,7 @@ void visit(int, int);
 int val(int, int);
 int dist(int, int);
 int visited(int, int);
+void reset_dist(void);
 
 typedef struct droid droid;
 typedef struct Map Map;
@@ -64,6 +65,8 @@ struct ioqueue
 	vlong val;
 } io;
 
+int maxdist;
+int foundo;
 droid G;
 
 void
@@ -74,6 +77,9 @@ main(int argc, char *argv[])
 	if( !( M = malloc( sizeof(Intcode) ) ) ) {
 		exits("Could not create machine.");
 	}
+
+	maxdist = MAXDIST;
+	foundo = 0;
 	G.x = 0;
 	G.y = 0;
 
@@ -266,7 +272,13 @@ icm_out(Intcode *M)
 			}
 			G.x = D.x;
 			G.y = D.y;
-			M->state = STOPPED;
+			if( !foundo ) {
+				foundo = 1;
+				reset_dist();
+				maxdist = 0;
+				setdist( D.x, D.y, 0 );
+				visit( D.x, D.y );
+			}
 			break;
 		default:
 			print("Bad response from droid.\n");
@@ -298,6 +310,23 @@ create_map()
 	flr.v[4].val = start;
 	flr.v[4].dist = 0;
 	flr.v[4].visited = 1;
+}
+
+void
+reset_dist()
+{
+	int m, i, q;
+	q = (flr.max_x - flr.min_x + 1) * (D.y - flr.min_y) + (D.x - flr.min_x);
+	m = (flr.max_x - flr.min_x + 1) * (flr.max_y - flr.min_y + 1);
+	
+	for( i = 0; i < m; i++ ) {
+		if( i != q ) {
+			flr.v[i].dist = MAXDIST;
+			flr.v[i].visited = 0;
+		} else {
+			flr.v[i].dist = 0;
+		}
+	}
 }
 
 void
@@ -381,6 +410,10 @@ visit(int x, int y)
 void
 setdist(int x, int y, int v)
 {
+	if( v > maxdist ) {
+		print("%d\n", v);
+		maxdist = v;
+	}
 	flr.v[ (y - flr.min_y) * (flr.max_x - flr.min_x + 1) + (x - flr.min_x) ].dist = v;
 }
 
