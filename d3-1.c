@@ -78,8 +78,6 @@ play_itoken()
 {
 	int xdir = 0, ydir = 0, i = 0;
 
-	print("%c%d\n", itoken.direction, itoken.value);
-
 	switch( itoken.direction ) {
 	case left:
 		xdir = -1;
