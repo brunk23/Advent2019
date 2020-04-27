@@ -41,13 +41,27 @@ void addbefore(Spot *, Spot *);
 void addafter(Spot *, Spot *);
 void delete_Spots( void );
 Spot *empty_spot( void );
+void print_intersections( void );
 
-void delete_Spots()
+void
+print_intersections()
+{
+	Spot *curr = head;
+	int lowest = 9999999, lowx, lowy;
+	while( curr ) {
+		if( curr->wire[0] && curr->wire[1] ) {
+			print("x: %d  y: %d\n", curr->x, curr->y);
+		}
+		curr = curr->next;
+	}
+}
+
+void
+delete_Spots()
 {
 	Spot *curr = head, *tmp;
 
 	while( curr ) {
-		print("Spot count: %d\n", Spots_used);
 		Spots_used--;
 		tmp = curr->next;
 		free( curr );
@@ -79,10 +93,10 @@ play_itoken()
 		break;
 	}
 
-	for( i = 0; i <= itoken.value; i++ ) {
-		addwire( itoken.x, itoken.y, itoken.wire );
+	for( i = 0; i < itoken.value; i++ ) {
 		itoken.x += xdir;
 		itoken.y += ydir;
+		addwire( itoken.x, itoken.y, itoken.wire );
 	}
 }
 
@@ -249,6 +263,8 @@ main(int argc, char *argv[])
 		}
 		itoken.wire++;
 	}
+
+	print_intersections();
 
 	delete_Spots();
 	fclose(fp);
