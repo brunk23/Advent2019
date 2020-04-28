@@ -117,8 +117,8 @@ find_counts( Location map[HEIGHT][WIDTH] )
 				map[y][x].cansee = howmany( map, x, y );
 				if( map[y][x].cansee >= max ) {
 					max = map[y][x].cansee;
+					print("(%d,%d) - %d\n", x, y, map[y][x].cansee );
 				}
-				print("(%d,%d) - %d\n", x, y, map[y][x].cansee );
 			}
 		}
 	}
