@@ -25,8 +25,8 @@ struct Elem
 {
 	char name[ NAMESIZE ];
 	int increment;
-	int amount_needed;
-	int amount_made;
+	vlong amount_needed;
+	vlong amount_made;
 	Token needs[ MAXLEFT ];
 };
 
@@ -40,10 +40,13 @@ void print_element( Elem * );
 void optimize( Elem *[] );
 void run_list( Elem *[] );
 
+Elem *fuel;
+
 void
 run_list( Elem *a[] )
 {
-	int change = 1, i, j, need, tmp;
+	int change = 1, i, j;
+	vlong need, tmp;
 
 	while( change ) {
 		change = 0;
@@ -54,16 +57,16 @@ run_list( Elem *a[] )
 			if( a[i]->amount_needed > a[i]->amount_made ) {
 				change = 1;
 				tmp = a[i]->amount_needed - a[i]->amount_made;
-				need = tmp / a[i]->increment;
-				if( tmp % a[i]->increment ) {
+				need = tmp / (vlong) a[i]->increment;
+				if( tmp % (vlong) a[i]->increment ) {
 					need++;
 				}
-				a[i]->amount_made += (need * a[i]->increment);
+				a[i]->amount_made += (need * (vlong) a[i]->increment);
 				for( tmp = 0; tmp < MAXLEFT; tmp++ ) {
 					if( !a[i]->needs[tmp].amount ) {
 						break;
 					}
-					a[i]->needs[tmp].recipe->amount_needed += (need * a[i]->needs[tmp].amount);
+					a[i]->needs[tmp].recipe->amount_needed += (need * (vlong) a[i]->needs[tmp].amount);
 				}
 			}
 		}
@@ -85,6 +88,7 @@ optimize( Elem *a[] )
 		where = a[i];
 		if( !strcmp( s, "FUEL" ) ) {
 			a[i]->amount_needed = 1;
+			fuel = a[i];
 		}
 		for( j = 0; j < NUMBER; j++ ) {
 			if( !a[j] ) {
@@ -113,7 +117,7 @@ print_element( Elem *e ) {
 		}
 	}
 	print("\n");
-	print("Needed: %d and Made %d\n", e->amount_needed, e->amount_made);
+	print("Needed: %lld and Made %lld\n", e->amount_needed, e->amount_made);
 }
 
 Elem *parse_line(char *s)
@@ -177,6 +181,11 @@ main(int argc, char *argv[])
 	char n[MAXLEN];
 	Elem *all[NUMBER];
 	int i;
+	vlong max;
+
+	max = 1000 * 1000;
+	max = max * max;
+
 
 	for( i = 0; i < NUMBER; i++ ) {
 		all[i] = nil;
@@ -206,13 +215,19 @@ main(int argc, char *argv[])
 	}
 
 	optimize( all );
-	run_list( all );
+
+	while( all[0]->amount_made < max ) {
+		run_list( all );
+		fuel->amount_needed++;
+	}
 
 	for( i = 0; i < NUMBER; i++ ) {
 		if( all[i] ) {
 			print_element( all[i] );
 		}
 	}
+
+	print("Fuel: %lld\n",fuel->amount_needed - 1);
 
 	for( i = 0; i < NUMBER; i++ ) {
 		if( all[i] ) {
