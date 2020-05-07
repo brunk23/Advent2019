@@ -209,7 +209,7 @@ main(int argc, char *argv[])
 	char n[MAXLEN];
 	Elem *all[NUMBER];
 	int i;
-	vlong max = 1000;
+	vlong max = 1000, acost;
 
 	/* The compiler won't read 1 trillion correctly, so calculate it */
 	max *= max;
@@ -244,7 +244,34 @@ main(int argc, char *argv[])
 	}
 
 	optimize( all );
+	run_list( all );
+	print("It took %lld to make 1 FUEL\n", all[0]->amount_made );
 
+	/*
+	 * Instead of looping up by 1, we can use the original amount to estimate
+	 * the total we can make. This will never be higher than the real number
+	 * because of efficiencies we gain from excess materials made in previous
+	 * steps.  This simple changes gets up from almost 10 seconds to under 3.
+	 */
+	fuel->amount_needed = max / all[0]->amount_made;
+	print("Trying to make %lld, which should keep us under max.\n", fuel->amount_needed);
+	run_list( all );
+
+	/*
+	 * Try one more loop to optimize it.  This new average should be pretty close.
+	 * It is actually so close, we need to around it up by 1 or we overshoot.
+	 * This added step makes the program run almost instantly. Time reports
+	 * 0.00 - 0.01 seconds and 0.05-0.06 real time
+	 */
+	acost = all[0]->amount_made / fuel->amount_needed + 1;
+	fuel->amount_needed = max / acost;
+	print("Trying to make %lld\n", fuel->amount_needed );
+	run_list( all );
+
+	/*
+	 * Instead of running almost 2.6 million times, this currently makes
+	 * only 1 pass.
+	 */
 	while( all[0]->amount_made < max ) {
 		run_list( all );
 		fuel->amount_needed++;
@@ -256,7 +283,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	print("Fuel: %lld\n",fuel->amount_made);
+	print("Fuel Made with less than 1 trillion ORE: %lld\n",fuel->amount_made);
 
 	for( i = 0; i < NUMBER; i++ ) {
 		if( all[i] ) {
