@@ -251,16 +251,16 @@ main(int argc, char *argv[])
 	 * Instead of looping up by 1, we can use the original amount to estimate
 	 * the total we can make. This will never be higher than the real number
 	 * because of efficiencies we gain from excess materials made in previous
-	 * steps.  This simple changes gets up from almost 10 seconds to under 3.
+	 * steps.  This simple change gets up from almost 10 seconds to under 3.
 	 */
 	fuel->amount_needed = max / all[0]->amount_made;
 	print("Trying to make %lld, which should keep us under max.\n", fuel->amount_needed);
 	run_list( all );
 
 	/*
-	 * Try one more loop to optimize it.  This new average should be pretty close.
-	 * It is actually so close, we need to around it up by 1 or we overshoot.
-	 * This added step makes the program run almost instantly. Time reports
+	 * Try one more time to predict the total. This new average should be close.
+	 * It is actually so close, we need to round it up by 1 or we overshoot.
+	 * This added step makes the program run almost instantly. time reports
 	 * 0.00 - 0.01 seconds and 0.05-0.06 real time
 	 */
 	acost = all[0]->amount_made / fuel->amount_needed + 1;
@@ -270,7 +270,7 @@ main(int argc, char *argv[])
 
 	/*
 	 * Instead of running almost 2.6 million times, this currently makes
-	 * only 1 pass.
+	 * only 1 or 2 passes.
 	 */
 	while( all[0]->amount_made < max ) {
 		run_list( all );
