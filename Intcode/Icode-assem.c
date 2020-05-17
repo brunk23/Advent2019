@@ -6,12 +6,19 @@
 
 enum
 {
-	ADD=1, MULT, IN, OUT, JT, JF, EQ, ADJRB,
-	HALT=99, POSITION, IMMEDIATE, RELATIVE
+	ADD=1, MULT, IN, OUT, JT, JF, LT, EQ, ADJRB,
+	HALT=99, POSITION, IMMEDIATE, RELATIVE, VAR
 };
 
 typedef struct TOKEN TOKEN;
 typedef struct LINE LINE;
+typedef struct RESERVED RESERVED;
+
+struct RESERVED
+{
+	char *name;
+	int value;
+};
 
 struct TOKEN
 {
@@ -30,6 +37,21 @@ struct LINE
 	LINE *next;
 };
 
+
+RESERVED reserved_words[] = {
+	{"add", ADD},
+	{"mult", MULT},
+	{"in", IN},
+	{"out", OUT},
+	{"jt", JT},
+	{"jf", JF},
+	{"lt", LT},
+	{"eql", EQ},
+	{"adjb", ADJRB},
+	{"halt", HALT},
+	{"var", VAR},
+	{nil, 0}
+};
 
 void process_input( char *filename );
 LINE *create_line( LINE *prev, int numb, char *str );
@@ -50,6 +72,14 @@ main(int argc, char *argv[])
 {
 	tokens = nil;
 	lines = nil;
+	int i;
+
+	for( i = 0; i < 100; i++ ) {
+		if( !reserved_words[i].name ) {
+			break;
+		}
+		print("%s -> %d\n", reserved_words[i].name, reserved_words[i].value);
+	}
 
 	if( argc >= 2 ) {
 		process_input( argv[1] );
@@ -164,6 +194,19 @@ TOKEN *
 create_tokens( TOKEN *prev, int numb, char *str )
 {
 	TOKEN *curr = nil;
+	int i;
+
+	/* Get rid of comments */
+	for( i = 0; i <= strlen(str); i++ ) {
+		if( str[i] == ';' ) {
+			str[i] = '\0';
+			break;
+		}
+	}
+
+	if( !( curr = malloc( sizeof( TOKEN ) ) ) ) {
+		exits("Couldn't create new token.");
+	}
 
 
 	return curr;
