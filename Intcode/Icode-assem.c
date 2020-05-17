@@ -33,8 +33,11 @@ struct LINE
 
 void process_input( char *filename );
 LINE *create_line( LINE *prev, int numb, char *str );
+TOKEN *create_tokens( TOKEN *prev, int numb, char *str );
 void free_lines( void );
+void free_tokens( void );
 void print_lines( void );
+void print_tokens (void );
 
 /*
  * Global value trees
@@ -55,6 +58,7 @@ main(int argc, char *argv[])
 	}
 	print_lines();
 
+	free_tokens();
 	free_lines();
 	exits(0);
 }
@@ -63,7 +67,8 @@ void
 process_input( char *filename )
 {
 	FILE *fp_in = nil;
-	LINE *curr = lines;
+	LINE *curr_line = lines;
+	TOKEN *curr_token = tokens;
 	int linenumber = 0;
 	char input[MAXLEN];
 
@@ -85,7 +90,8 @@ process_input( char *filename )
 		 * assume source files play nice.
 		 */
 		linenumber++;
-		curr = create_line( curr, linenumber, input );
+		curr_line = create_line( curr_line, linenumber, input );
+		curr_token = create_tokens( curr_token, linenumber, input );
 	}
 
 	if( fp_in && fp_in != stdin ) {
@@ -152,4 +158,32 @@ print_lines()
 		print("%d:\t%s\n", curr->line_no, curr->value );
 		curr = curr->next;
 	}
+}
+
+TOKEN *
+create_tokens( TOKEN *prev, int numb, char *str )
+{
+	TOKEN *curr = nil;
+
+
+	return curr;
+}
+
+void
+free_tokens()
+{
+	TOKEN *curr = tokens, *next;
+
+	while( curr ) {
+		next = curr->next;
+		free( curr->value );
+		free( curr );
+		curr = next;
+	}
+}
+
+void
+print_tokens()
+{
+
 }
