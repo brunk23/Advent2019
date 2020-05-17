@@ -60,6 +60,7 @@ void free_lines( void );
 void free_tokens( void );
 void print_lines( void );
 void print_tokens (void );
+int is_reserved( char * );
 
 /*
  * Global value trees
@@ -72,25 +73,30 @@ main(int argc, char *argv[])
 {
 	tokens = nil;
 	lines = nil;
-	int i;
-
-	for( i = 0; i < 100; i++ ) {
-		if( !reserved_words[i].name ) {
-			break;
-		}
-		print("%s -> %d\n", reserved_words[i].name, reserved_words[i].value);
-	}
 
 	if( argc >= 2 ) {
 		process_input( argv[1] );
 	} else {
 		process_input( 0 );
 	}
-	print_lines();
+	print_tokens();
 
 	free_tokens();
 	free_lines();
 	exits(0);
+}
+
+int
+is_reserved( char *s ) {
+	int i = 0;
+
+	while( reserved_words[i].name ) {
+		if( !( strcmp( reserved_words[i].name, s ) ) ) {
+			return reserved_words[i].value;
+		}
+		i++;
+	}
+	return 0;
 }
 
 void
@@ -193,21 +199,47 @@ print_lines()
 TOKEN *
 create_tokens( TOKEN *prev, int numb, char *str )
 {
-	TOKEN *curr = nil;
+	TOKEN *curr = nil, *p;
+	char *s = str;
 	int i;
 
+	p = prev;
+
 	/* Get rid of comments */
-	for( i = 0; i <= strlen(str); i++ ) {
+	for( i = 0; i < strlen(str); i++ ) {
 		if( str[i] == ';' ) {
 			str[i] = '\0';
 			break;
 		}
 	}
 
-	if( !( curr = malloc( sizeof( TOKEN ) ) ) ) {
-		exits("Couldn't create new token.");
-	}
+	s = strtok(s, " \t\n\r");
 
+	while( s ) {
+		if( !( curr = malloc( sizeof( TOKEN ) ) ) ) {
+			exits("Couldn't create new token.");
+		}
+		if( !( curr->value = malloc( sizeof( char ) * (strlen( s ) + 1) ) ) ) {
+			exits("Couldn't create token string.");
+		}
+
+		strncpy( curr->value, s, strlen( s ) + 1 );
+		curr->type = is_reserved( s );
+		curr->next = nil;
+		curr->location = -1;
+		curr->resolved = 0;
+		curr->line = numb;
+
+		print("Made token for %s\n", s);
+		if( !tokens ) {
+			tokens = curr;
+			p = curr;
+		} else {
+			p->next = curr;
+			p = curr;
+		}
+		s = strtok( 0, " \t\n\r");
+	}
 
 	return curr;
 }
@@ -228,5 +260,10 @@ free_tokens()
 void
 print_tokens()
 {
+	TOKEN *curr = tokens;
 
+	while( curr ) {
+		print("T: %s\t%d\t%d\t%d\n",curr->value,curr->type, curr->location, curr->line);
+		curr = curr->next;
+	}
 }
