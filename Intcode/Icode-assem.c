@@ -234,20 +234,17 @@ create_tokens( TOKEN *prev, int numb, char *str )
 		curr->resolved = 0;
 		curr->line = numb;
 
-	/*	print("Made token for %s\n", s); */
 		if( !tokens ) {
 			tokens = curr;
 			p = curr;
 		} else {
-			print_tokens();
 			p->next = curr;
 			p = curr;
 		}
-		print("getting next token\n");
 		s = strtok( 0, " \t\n\r");
 	}
 
-	return curr;
+	return p;
 }
 
 void
