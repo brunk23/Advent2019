@@ -7,7 +7,8 @@
 enum
 {
 	ADD=1, MULT, IN, OUT, JT, JF, LT, EQ, ADJRB,
-	HALT=99, POSITION, IMMEDIATE, RELATIVE, VAR
+	HALT=99, POSITION, IMMEDIATE, RELATIVE, VAR,
+	LABEL
 };
 
 typedef struct TOKEN TOKEN;
@@ -95,6 +96,9 @@ is_reserved( char *s ) {
 			return reserved_words[i].value;
 		}
 		i++;
+	}
+	if( s[ strlen(s) - 1 ] == ':' ) {
+		return LABEL;
 	}
 	return 0;
 }
@@ -224,20 +228,22 @@ create_tokens( TOKEN *prev, int numb, char *str )
 		}
 
 		strncpy( curr->value, s, strlen( s ) + 1 );
-		curr->type = is_reserved( s );
+		curr->type = is_reserved( curr->value );
 		curr->next = nil;
 		curr->location = -1;
 		curr->resolved = 0;
 		curr->line = numb;
 
-		print("Made token for %s\n", s);
+	/*	print("Made token for %s\n", s); */
 		if( !tokens ) {
 			tokens = curr;
 			p = curr;
 		} else {
+			print_tokens();
 			p->next = curr;
 			p = curr;
 		}
+		print("getting next token\n");
 		s = strtok( 0, " \t\n\r");
 	}
 
