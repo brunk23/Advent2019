@@ -1,6 +1,7 @@
 #include <u.h>
 #include <libc.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #define MAXLEN 120
 
@@ -97,8 +98,18 @@ is_reserved( char *s ) {
 		}
 		i++;
 	}
-	if( s[ strlen(s) - 1 ] == ':' ) {
+	if( s[ strlen(s) - 1 ] == ':' && isalpha( s[0] ) ) {
 		return LABEL;
+	}
+	switch( s[0] ) {
+	case '@':
+		return POSITION;
+	case '$':
+		return IMMEDIATE;
+	case '&':
+		return RELATIVE;
+	default:
+		break;
 	}
 	return 0;
 }
